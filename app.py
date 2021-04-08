@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@localhost:3306/reratemm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/reratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -57,12 +57,24 @@ class moviecomment(db.Model):
     movie_id = db.Column('movie_id', db.INTEGER(), primary_key = True)
     createtime = db.Column(db.DATETIME)
     content = db.Column (db.TEXT)
-
     def __init__(self,comment_id,movie_id,createtime,content):
         self.comment_id = comment_id
         self.movie_id = movie_id
         self.createtime = createtime
         self.content = content
+
+class actor (db.Model):
+    __tablename__ = 'actor'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    name = db.Column('name', db.VARCHAR(255))
+    country = db.Column ('country', db.VARCHAR(255))
+    date_of_birth = db.Column ('date_of_birth', db.VARCHAR(255))
+
+    def __init__(self,id,name,country, date_of_birth):
+        self.id = id
+        self.name = name
+        self.country = country
+        self.date_of_birth = date_of_birth
 
 @app.route('/')
 def showmovie():
@@ -74,6 +86,9 @@ def show_all():
     a_user = user.query.all()
     return render_template('show_all.html', users=a_user)
 
+@app.route('/actorinfo')
+def actors():
+    return render_template('actors.html', actors=actor.query.all())
 
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
