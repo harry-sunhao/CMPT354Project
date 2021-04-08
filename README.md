@@ -13,6 +13,9 @@
 1. Show all user information for URL:/userinfo
 
 2. Add user for URL:/reg
+
+3. Show all artist/actor/album info (based on user info page)
+
 ## Todo
 
 1. Show some comment in index.html
