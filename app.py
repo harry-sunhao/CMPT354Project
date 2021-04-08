@@ -99,6 +99,29 @@ class album (db.Model):
         self.track_name = track_name
         self.c_id = c_id
 
+class artist (db.Model):
+    __tablename__ = 'artist'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    name = db.Column('name', db.VARCHAR(255))
+    portrait = db.Column ('portrait', db.VARCHAR(255)) 
+    detailedInfo= db.Column ('detailedInfo', db.VARCHAR(255))
+    company = db.Column ('company', db.VARCHAR(255))
+    country= db.Column ('country', db.VARCHAR(255))
+    g_id= db.Column ('g_id', db.INTEGER())
+    track_name= db.Column ('track_name', db.VARCHAR(255))
+    album_id= db.Column ('album_id', db.INTEGER())
+                
+    def __init__(self,id,name,portrait,detailedInfo,company,country,g_id,track_name,album_id):
+        self.id = id
+        self.name = name
+        self.portrait = portrait
+        self.detailedInfo = detailedInfo
+        self.company = company
+        self.country = country
+        self.g_id = g_id
+        self.track_name = track_name
+        self.album_id = album_id             
+
           
 @app.route('/')
 def showmovie():
@@ -117,6 +140,10 @@ def actors():
 @app.route('/albuminfo')
 def albums():
     return render_template('album.html', albums=album.query.all())
+
+@app.route('/artistinfo')
+def artists():
+    return render_template('artist.html', artists=artist.query.all())
 
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
