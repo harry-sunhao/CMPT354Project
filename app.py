@@ -76,6 +76,30 @@ class actor (db.Model):
         self.country = country
         self.date_of_birth = date_of_birth
 
+class album (db.Model):
+    __tablename__ = 'album'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    cover = db.Column ('cover' ) 
+    name = db.Column('name', db.VARCHAR(255))
+    album_or_ep = db.Column ('album_or_ep', db.INTEGER())
+    releaseDate= db.Column ('releaseDate', db.DATETIME() )
+    detailedInfo= db.Column ('detailedInfo', db.TEXT())
+    g_id= db.Column ('g_id', db.INTEGER())
+    track_name= db.Column ('track_name', db.VARCHAR(255))
+    c_id= db.Column ('c_id', db.INTEGER())
+
+    def __init__(self,cover,id,name,album_or_ep,releaseDate,detailedInfo,g_id,track_name,c_id):
+        self.id = id
+        self.cover = cover
+        self.name = name
+        self.album_or_ep = album_or_ep
+        self.releaseDate = releaseDate
+        self.detailedInfo = etailedInfo
+        self.g_id = g_id
+        self.track_name = track_name
+        self.c_id = c_id
+
+          
 @app.route('/')
 def showmovie():
     return render_template('home.html', posts=movie.query.all())
@@ -89,6 +113,10 @@ def show_all():
 @app.route('/actorinfo')
 def actors():
     return render_template('actors.html', actors=actor.query.all())
+
+@app.route('/albuminfo')
+def albums():
+    return render_template('album.html', albums=album.query.all())
 
 @app.route('/reg', methods=['GET', 'POST'])
 def reg():
