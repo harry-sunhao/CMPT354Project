@@ -43,7 +43,7 @@ class movie (db.Model):
     title = db.Column('title', db.VARCHAR(255))
     release_date = db.Column ('release_date', db.VARCHAR(255))
     country = db.Column ('country', db.VARCHAR(255))
-    detailed_information = ('detailed_information', db.TEXT)
+    detailed_information = db.Column ('detailed_information', db.TEXT())
     def __init__(self,id,title,release_date,country,detailed_information):
         self.id = id
         self.title = title
@@ -55,8 +55,8 @@ class moviecomment(db.Model):
     __tablename__ = 'moviecomment'
     comment_id = db.Column('comment_id', db.INTEGER(), primary_key = True)
     movie_id = db.Column('movie_id', db.INTEGER(), primary_key = True)
-    createtime = db.Column(db.DATETIME)
-    content = db.Column (db.TEXT)
+    createtime = db.Column(db.DATETIME())
+    content = db.Column (db.TEXT())
     def __init__(self,comment_id,movie_id,createtime,content):
         self.comment_id = comment_id
         self.movie_id = movie_id
@@ -124,8 +124,8 @@ class artist (db.Model):
 
           
 @app.route('/')
-def showmovie():
-    return render_template('home.html', posts=movie.query.all())
+def home():
+    return render_template('home.html', posts = movie.query.all())
 
 
 @app.route('/userinfo')
