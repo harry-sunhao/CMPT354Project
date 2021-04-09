@@ -16,10 +16,12 @@
 
 3. Show all artist/actor/album info (based on user info page)
 
+4. Show some comment in home.html (movies page, we can move later)
+
 ## Todo
 
-1. Show some comment in index.html
+1. 
 
-2. Add comment
+2. Add comment (working on this now)
 
 3. Add rate
