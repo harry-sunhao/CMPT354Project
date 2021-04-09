@@ -52,12 +52,13 @@ class movie (db.Model):
         self.country = country
         self.detailed_information = detailed_information
 
+
 class moviecomment(db.Model):
     __tablename__ = 'moviecomment'
     comment_id = db.Column('comment_id', db.INTEGER(), primary_key = True)
     movie_id = db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'))
     createtime = db.Column(db.DATETIME())
-    content = db.Column (db.TEXT())
+    content = db.Column ('content', db.TEXT())
     def __init__(self,comment_id,movie_id,createtime,content):
         self.comment_id = comment_id
         self.movie_id = movie_id
@@ -95,7 +96,7 @@ class album (db.Model):
         self.name = name
         self.album_or_ep = album_or_ep
         self.releaseDate = releaseDate
-        self.detailedInfo = etailedInfo
+        self.detailedInfo = detailedInfo
         self.g_id = g_id
         self.track_name = track_name
         self.c_id = c_id
@@ -181,6 +182,41 @@ def reg():
             flash('Add user '+request.form['username']+' successfully. ')
             return redirect(url_for('show_all'))
     return render_template('reg.html')
+
+@app.route('/addcom', methods=['GET', 'POST'])
+def addcom():
+    if request.method == 'POST':
+        if not request.form['movie_id'] or not request.form['content']:
+            flash('Please enter all the fields', 'error')
+        else:
+            print( request.form['movie_id'], request.form['content'])
+            temp_comment_id = random.randint(1, 99999999999)
+            moviecomments = moviecomment.query.all()
+
+            isContain = 0
+            while (isContain == 0):
+                for temp in moviecomments:
+                    print(temp.comment_id, temp.movie_id, temp.content)
+                    if (temp.comment_id == temp_comment_id):
+                        temp_comment_id = random.randint(1, 9999999)
+                        isContain = 0
+                        break
+                    if (temp.movie_id == request.form['movie_id']):
+                        flash('username is exist, please change it.')
+                        return render_template('addcom.html')
+                    if (temp.content == request.form['content']):
+                        flash('email is exist, please change it.')
+                        return render_template('addcom.html')
+
+                else:
+                    isContain = 1
+            t_mov = moviecomment(temp_comment_id, request.form['movie_id'], request.form['content'])
+            db.session.add(t_mov)
+            db.session.commit()
+            flash('Add movie comment '+request.form['content']+' successfully. ')
+            return redirect(url_for('/'))
+    return render_template('addcom.html')
+
 
 
 if __name__ == '__main__':

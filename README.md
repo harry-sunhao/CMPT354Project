@@ -22,6 +22,6 @@
 
 1. 
 
-2. Add comment (working on this now)
+2. Add comment (working on this now) // cant get it to work properly T-T
 
 3. Add rate
