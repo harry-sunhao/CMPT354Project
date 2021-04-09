@@ -65,6 +65,16 @@ class moviecomment(db.Model):
         self.createtime = createtime
         self.content = content
 
+class movierating(db.Model):
+    __tablename__ = 'movierating'
+    rate_id = db.Column('rate_id', db.INTEGER(), primary_key = True)
+    createtime = db.Column(db.DATETIME())
+    value = db.Column ('value', db.FLOAT())
+    def __init__(self,rate_id,createtime,value):
+        self.rate_id = rate_id
+        self.createtime = createtime
+        self.value = value
+
 class actor (db.Model):
     __tablename__ = 'actor'
     id = db.Column('id', db.INTEGER(), primary_key=True)
@@ -124,7 +134,75 @@ class artist (db.Model):
         self.track_name = track_name
         self.album_id = album_id             
 
-          
+class albumartists(db.Model):
+    __tablename__ = 'albumartists'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    artist = db.Column('artist', db.VARCHAR(255),primary_key=True)
+    def __init__(self,id,artist):
+        self.id = id
+        self.artist= artist
+
+class albumcomment(db.Model):
+    __tablename__ = 'albumcomment'
+    comment_id = db.Column('comment_id', db.INTEGER(), primary_key = True)
+    createtime = db.Column(db.DATETIME())
+    content = db.Column ('content', db.TEXT())
+    def __init__(self,comment_id,createtime,content):
+        self.comment_id = comment_id
+        self.createtime = createtime
+        self.content = content
+
+class albumrating(db.Model):
+    __tablename__ = 'albumrating'
+    rate_id = db.Column('rate_id', db.INTEGER(), primary_key = True)
+    createtime = db.Column(db.DATETIME())
+    value = db.Column ('value', db.FLOAT())
+    def __init__(self,rate_id,createtime,value):
+        self.rate_id = rate_id
+        self.createtime = createtime
+        self.value = value
+
+class director(db.Model):
+    __tablename__ = 'director'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    name = db.Column('name', db.VARCHAR(255))
+    country = db.Column ('country', db.VARCHAR(255))
+    date_of_birth = db.Column ('date_of_birth', db.VARCHAR(255))
+    def __init__(self,id,name,country, date_of_birth):
+        self.id = id
+        self.name = name
+        self.country = country
+        self.date_of_birth = date_of_birth
+
+class genre(db.Model):
+    __tablename__ = 'genre'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    name = db.Column('name', db.VARCHAR(255))
+    album_track_artist_movie = db.Column ('album_track_artist_movie', db.VARCHAR(255))
+    def __init__(self,id,name,country, date_of_birth):
+        self.id = id
+        self.name = name
+        self.album_track_artist_movie = album_track_artist_movie
+
+class track(db.Model):
+    __tablename__ = 'track'
+    name = db.Column('name', db.VARCHAR(255), primary_key=True)
+    lyrics= db.Column ('alyrics', db.TEXT())
+    def __init__(self,name,lyrics):
+        self.id = id
+        self.name = name
+        self.lyrics = lyrics
+
+class trackrating(db.Model):
+    __tablename__ = 'trackrating'
+    rate_id = db.Column('rate_id', db.INTEGER(), primary_key = True)
+    createtime = db.Column(db.DATETIME())
+    value = db.Column ('value', db.FLOAT())
+    def __init__(self,rate_id,createtime,value):
+        self.rate_id = rate_id
+        self.createtime = createtime
+        self.value = value
+
 @app.route('/')
 def home():
     movie.query.all()
