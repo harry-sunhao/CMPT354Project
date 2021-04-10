@@ -25,9 +25,11 @@
                <th>Name</th>
                <th>Album or EP</th>
                 <th>Release Date</th>
+                <th>Detailed Information</th>
                 <th>Genre</th>
                 <th>Tracks</th>
-                <th>c_id</th>
+                <th>Album Comment ID</th>
+                <th>Artists</th>
             </tr>
          </thead>
 
@@ -43,6 +45,7 @@
                   <td>{{ album.g_id }}</td>
                   <td>{{ album.track_name }}</td>
                   <td>{{ album.c_id }}</td>
+                  <td>{{ album.artist }}</td>
                </tr>
             {% endfor %}
          </tbody>
