@@ -37,6 +37,15 @@ class user(db.Model):
         self.music_rating_weight = 0
         self.movie_rating_weight = 0
 
+act = db.Table('act',
+    db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
+    db.Column('actor_id', db.INTEGER(), db.ForeignKey('actor.id'), primary_key=True)
+)
+
+direct = db.Table('direct',
+    db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
+    db.Column('director_id', db.INTEGER(), db.ForeignKey('director.id'), primary_key=True)
+)
 class movie (db.Model):
     __tablename__ = 'movie'
     id = db.Column('id', db.INTEGER(), primary_key=True)
@@ -45,6 +54,10 @@ class movie (db.Model):
     country = db.Column ('country', db.VARCHAR(255))
     detailed_information = db.Column ('detailed_information', db.TEXT())
     moviecomments = db.relationship('moviecomment', backref='movie', lazy=True)
+    act = db.relationship('actor', secondary=act, lazy='subquery',
+        backref=db.backref('movie', lazy=True))
+    direct = db.relationship('director', secondary=direct, lazy='subquery',
+        backref=db.backref('movie', lazy=True))
     def __init__(self,id,title,release_date,country,detailed_information):
         self.id = id
         self.title = title
@@ -80,12 +93,18 @@ class actor (db.Model):
     name = db.Column('name', db.VARCHAR(255))
     country = db.Column ('country', db.VARCHAR(255))
     date_of_birth = db.Column ('date_of_birth', db.VARCHAR(255))
-
+    act = db.relationship('movie', secondary=act, lazy='subquery',
+        backref=db.backref('actor', lazy=True))
     def __init__(self,id,name,country, date_of_birth):
         self.id = id
         self.name = name
         self.country = country
         self.date_of_birth = date_of_birth
+
+producealbum = db.Table('producealbum',
+    db.Column('albumID', db.INTEGER(), db.ForeignKey('album.id'), primary_key=True),
+    db.Column('artistID', db.INTEGER(), db.ForeignKey('artist.id'), primary_key=True)
+)
 
 class album (db.Model):
     __tablename__ = 'album'
@@ -98,8 +117,9 @@ class album (db.Model):
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_name= db.Column ('track_name', db.VARCHAR(255), db.ForeignKey('track.name'))
     c_id= db.Column ('c_id', db.INTEGER(), db.ForeignKey('albumcomment.comment_id'))
-    #albumtrack = db.relationship('track', backref='album', lazy=True)
-    artist= db.relationship('artist', backref='album', lazy=True)
+    #artist= db.relationship('artist', backref='album', lazy=True)
+    producealbum = db.relationship('artist', secondary=producealbum, lazy='subquery',
+        backref=db.backref('album', lazy=True))
     def __init__(self,cover,id,name,album_or_ep,releaseDate,detailedInfo,g_id,track_name,c_id):
         self.id = id
         self.cover = cover
@@ -120,8 +140,13 @@ class artist (db.Model):
     company = db.Column ('company', db.VARCHAR(255))
     country= db.Column ('country', db.VARCHAR(255))
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
-    track_name= db.Column ('track_name', db.VARCHAR(255),db.ForeignKey('track.name'))
-    album_id= db.Column ('album_id', db.INTEGER(), db.ForeignKey('album.id'))
+    track_name= db.Column ('track_name', db.VARCHAR(255)#,db.ForeignKey('track.name')
+    )
+    album_id= db.Column ('album_id', db.INTEGER()#, db.ForeignKey('album.id')
+    )
+    producealbum = db.relationship('album', secondary=producealbum, lazy='subquery',
+        backref=db.backref('artist', lazy=True))
+    
                 
     def __init__(self,id,name,portrait,detailedInfo,company,country,g_id,track_name,album_id):
         self.id = id
@@ -169,6 +194,8 @@ class director(db.Model):
     name = db.Column('name', db.VARCHAR(255))
     country = db.Column ('country', db.VARCHAR(255))
     date_of_birth = db.Column ('date_of_birth', db.VARCHAR(255))
+    direct = db.relationship('movie', secondary=direct, lazy='subquery',
+        backref=db.backref('director', lazy=True))
     def __init__(self,id,name,country, date_of_birth):
         self.id = id
         self.name = name
@@ -191,7 +218,7 @@ class track(db.Model):
     __tablename__ = 'track'
     name = db.Column('name', db.VARCHAR(255), primary_key=True)
     lyrics= db.Column ('lyrics', db.TEXT())
-    artist = db.relationship('artist', backref='track', lazy=True)
+    #artist = db.relationship('artist', backref='track', lazy=True)
     album= db.relationship('album', backref='track', lazy=True)
     def __init__(self,name,lyrics):
         self.id = id
