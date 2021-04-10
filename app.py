@@ -95,9 +95,9 @@ class album (db.Model):
     album_or_ep = db.Column ('album_or_ep', db.INTEGER())
     releaseDate= db.Column ('releaseDate', db.DATETIME() )
     detailedInfo= db.Column ('detailedInfo', db.TEXT())
-    g_id= db.Column ('g_id', db.INTEGER())
-    track_name= db.Column ('track_name', db.VARCHAR(255))
-    c_id= db.Column ('c_id', db.INTEGER())
+    g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
+    track_name= db.Column ('track_name', db.VARCHAR(255), db.ForeignKey('track.name'))
+    c_id= db.Column ('c_id', db.INTEGER(), db.ForeignKey('albumcomment.comment_id'))
     #albumtrack = db.relationship('track', backref='album', lazy=True)
     artist= db.relationship('artist', backref='album', lazy=True)
     def __init__(self,cover,id,name,album_or_ep,releaseDate,detailedInfo,g_id,track_name,c_id):
@@ -146,8 +146,8 @@ class albumcomment(db.Model):
     __tablename__ = 'albumcomment'
     comment_id = db.Column('comment_id', db.INTEGER(), primary_key = True)
     createtime = db.Column(db.DATETIME())
-    content = db.Column ('content', db.TEXT())
-    #album = db.Column('album', db.VARCHAR(255),primary_key=True)
+    content = db.Column ('content', db.INTEGER())
+    album= db.relationship('album', backref='albumcomment', lazy=True)
     def __init__(self,comment_id,createtime,content):
         self.comment_id = comment_id
         self.createtime = createtime
@@ -181,6 +181,7 @@ class genre(db.Model):
     name = db.Column('name', db.VARCHAR(255))
     album_track_artist_movie = db.Column ('album_track_artist_movie', db.VARCHAR(255))
     artist= db.relationship('artist', backref='genre', lazy=True)
+    album= db.relationship('album', backref='genre', lazy=True)
     def __init__(self,id,name,country, date_of_birth):
         self.id = id
         self.name = name
@@ -191,7 +192,7 @@ class track(db.Model):
     name = db.Column('name', db.VARCHAR(255), primary_key=True)
     lyrics= db.Column ('lyrics', db.TEXT())
     artist = db.relationship('artist', backref='track', lazy=True)
-
+    album= db.relationship('album', backref='track', lazy=True)
     def __init__(self,name,lyrics):
         self.id = id
         self.name = name
