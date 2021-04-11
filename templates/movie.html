@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rate Music&Movie</title>
+</head>
+<body>
+  {%- for message in get_flashed_messages() %}
+  {{ message }}
+{%- endfor %}
+{% block content %}
+    {% for post in posts %}
+        <article class="media content-section">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ post.id }}</a>
+            </div>
+            <h2><a class="article-title" href="http://127.0.0.1:5000/addcom">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.detailed_information }}</p>
+            <p>{{ post.moviecomments }}</p>
+            <p>{{ post.act }}</p>
+            <p>{{ post.direct }}</p>
+          </div>
+        </article>
+    {% endfor %}
+{% endblock content %}
+</body>
+</html>

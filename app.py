@@ -5,14 +5,12 @@ import sqlalchemy
 from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/reratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
 db = SQLAlchemy(app, use_native_unicode='utf8')
-
 
 class user(db.Model):
     __tablename__ = 'user'
@@ -36,12 +34,12 @@ class user(db.Model):
         self.id = id
         self.music_rating_weight = 0
         self.movie_rating_weight = 0
-
+#many-Many relation for act
 act = db.Table('act',
     db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
     db.Column('actor_id', db.INTEGER(), db.ForeignKey('actor.id'), primary_key=True)
 )
-
+#many-Many relation for direct
 direct = db.Table('direct',
     db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
     db.Column('director_id', db.INTEGER(), db.ForeignKey('director.id'), primary_key=True)
@@ -67,10 +65,10 @@ class movie (db.Model):
 
 class moviecomment(db.Model):
     __tablename__ = 'moviecomment'
-    comment_id = db.Column('comment_id', db.INTEGER(), primary_key = True)
+    comment_id = db.Column('comment_id', db.INTEGER(), primary_key = True, autoincrement=True)
     movie_id = db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'))
-    createtime = db.Column(db.DATETIME())
-    content = db.Column ('content', db.TEXT())
+    createtime = db.Column('createtime', db.DATETIME())
+    content = db.Column ('content',db.TEXT())
     users= db.relationship('user', backref='moviecomment', lazy=True)
     def __init__(self,comment_id,movie_id,createtime,content):
         self.comment_id = comment_id
@@ -102,7 +100,7 @@ class actor (db.Model):
         self.name = name
         self.country = country
         self.date_of_birth = date_of_birth
-
+#many-Many relation for produce
 producealbum = db.Table('producealbum',
     db.Column('albumID', db.INTEGER(), db.ForeignKey('album.id'), primary_key=True),
     db.Column('artistID', db.INTEGER(), db.ForeignKey('artist.id'), primary_key=True)
@@ -242,10 +240,13 @@ class trackrating(db.Model):
 
 @app.route('/')
 def home():
-    movie.query.all()
-    return render_template('home.html', posts = movie.query.all())
-    
+    return render_template('home.html')
 
+@app.route('/movie')
+def mov():
+    movie.query.all()
+    return render_template('movie.html', posts = movie.query.all())
+    
 
 @app.route('/userinfo')
 def show_all():
@@ -302,38 +303,25 @@ def reg():
             return redirect(url_for('show_all'))
     return render_template('reg.html')
 
+#add comment: works! but dont know how to get current time for createtime
 @app.route('/addcom', methods=['GET', 'POST'])
+
 def addcom():
     if request.method == 'POST':
-        if not request.form['movie_id'] or not request.form['content']:
+        if not request.form['comment_id'] or not request.form['movie_id'] or not request.form['content']:
             flash('Please enter all the fields', 'error')
         else:
-            print( request.form['movie_id'], request.form['content'])
-            temp_comment_id = random.randint(1, 99999999999)
+            print(request.form['comment_id'], request.form['movie_id'], request.form['content'])
+            #temp_comment_id = random.randint(1, 99999999999)
             moviecomments = moviecomment.query.all()
 
-            isContain = 0
-            while (isContain == 0):
-                for temp in moviecomments:
-                    print(temp.comment_id, temp.movie_id, temp.content)
-                    if (temp.comment_id == temp_comment_id):
-                        temp_comment_id = random.randint(1, 9999999)
-                        isContain = 0
-                        break
-                    if (temp.movie_id == request.form['movie_id']):
-                        flash('username is exist, please change it.')
-                        return render_template('addcom.html')
-                    if (temp.content == request.form['content']):
-                        flash('email is exist, please change it.')
-                        return render_template('addcom.html')
-
-                else:
-                    isContain = 1
-            t_mov = moviecomment(temp_comment_id, request.form['movie_id'], request.form['content'])
+        
+            t_mov = moviecomment(request.form['comment_id'], request.form['movie_id'], 'createtime', request.form['content'])
             db.session.add(t_mov)
             db.session.commit()
             flash('Add movie comment '+request.form['content']+' successfully. ')
-            return redirect(url_for('/'))
+            flash('Add movie comment successfully. ')
+            return redirect(url_for('mov'))
     return render_template('addcom.html')
 
 
