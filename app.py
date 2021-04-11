@@ -22,11 +22,11 @@ class user(db.Model):
     movie_rating_weight = db.Column(db.FLOAT(255))
     username = db.Column(db.VARCHAR(255))
     password = db.Column(db.VARCHAR(255))
-    album_r_id = db.Column(db.INTEGER())
-    album_c_id = db.Column(db.INTEGER())
-    track_r_id = db.Column(db.INTEGER())
-    movie_c_id = db.Column(db.INTEGER())
-    movie_r_id = db.Column(db.INTEGER())
+    album_r_id = db.Column('album_r_id', db.INTEGER(), db.ForeignKey('albumrating.rate_id'))
+    album_c_id = db.Column('album_c_id', db.INTEGER(), db.ForeignKey('albumcomment.comment_id'))
+    track_r_id = db.Column('track_r_id', db.INTEGER(), db.ForeignKey('trackrating.rate_id'))
+    movie_c_id = db.Column('movie_c_id', db.INTEGER(), db.ForeignKey('moviecomment.comment_id'))
+    movie_r_id = db.Column('movie_r_id', db.INTEGER(), db.ForeignKey('movierating.rate_id'))
     certified_musician = db.Column(db.VARCHAR(255))
 
     def __init__(self, id, email, username, password):
@@ -71,6 +71,7 @@ class moviecomment(db.Model):
     movie_id = db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'))
     createtime = db.Column(db.DATETIME())
     content = db.Column ('content', db.TEXT())
+    users= db.relationship('user', backref='moviecomment', lazy=True)
     def __init__(self,comment_id,movie_id,createtime,content):
         self.comment_id = comment_id
         self.movie_id = movie_id
@@ -82,6 +83,7 @@ class movierating(db.Model):
     rate_id = db.Column('rate_id', db.INTEGER(), primary_key = True)
     createtime = db.Column(db.DATETIME())
     value = db.Column ('value', db.FLOAT())
+    users= db.relationship('user', backref='movierating', lazy=True)
     def __init__(self,rate_id,createtime,value):
         self.rate_id = rate_id
         self.createtime = createtime
@@ -140,7 +142,7 @@ class artist (db.Model):
     company = db.Column ('company', db.VARCHAR(255))
     country= db.Column ('country', db.VARCHAR(255))
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
-    track_name= db.Column ('track_name', db.VARCHAR(255)#,db.ForeignKey('track.name')
+    track_name= db.Column ('track_name', db.VARCHAR(255),db.ForeignKey('track.name')
     )
     album_id= db.Column ('album_id', db.INTEGER()#, db.ForeignKey('album.id')
     )
@@ -173,6 +175,7 @@ class albumcomment(db.Model):
     createtime = db.Column(db.DATETIME())
     content = db.Column ('content', db.INTEGER())
     album= db.relationship('album', backref='albumcomment', lazy=True)
+    users= db.relationship('user', backref='albumcomment', lazy=True)
     def __init__(self,comment_id,createtime,content):
         self.comment_id = comment_id
         self.createtime = createtime
@@ -183,6 +186,7 @@ class albumrating(db.Model):
     rate_id = db.Column('rate_id', db.INTEGER(), primary_key = True)
     createtime = db.Column(db.DATETIME())
     value = db.Column ('value', db.FLOAT())
+    users = db.relationship('user', backref='albumrating', lazy=True)
     def __init__(self,rate_id,createtime,value):
         self.rate_id = rate_id
         self.createtime = createtime
@@ -218,7 +222,7 @@ class track(db.Model):
     __tablename__ = 'track'
     name = db.Column('name', db.VARCHAR(255), primary_key=True)
     lyrics= db.Column ('lyrics', db.TEXT())
-    #artist = db.relationship('artist', backref='track', lazy=True)
+    artist = db.relationship('artist', backref='track', lazy=True)
     album= db.relationship('album', backref='track', lazy=True)
     def __init__(self,name,lyrics):
         self.id = id
@@ -230,6 +234,7 @@ class trackrating(db.Model):
     rate_id = db.Column('rate_id', db.INTEGER(), primary_key = True)
     createtime = db.Column(db.DATETIME())
     value = db.Column ('value', db.FLOAT())
+    users= db.relationship('user', backref='trackrating', lazy=True)
     def __init__(self,rate_id,createtime,value):
         self.rate_id = rate_id
         self.createtime = createtime
@@ -254,6 +259,10 @@ def actors():
 @app.route('/albuminfo')
 def albums():
     return render_template('album.html', albums=album.query.all())
+
+@app.route('/albumrate')
+def albumcomments():
+    return render_template('albumrate.html', albumcomments=albumcomment.query.all())
 
 @app.route('/artistinfo')
 def artists():

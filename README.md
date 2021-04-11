@@ -18,6 +18,10 @@
 
 4. Show some comment in home.html (movies page, we can move later)
 
+5. updated the sql for direct...
+
+6. added all the relationships.. but not sure if we need to fix them or not... i feel like some relations were not set up properly in the sql
+
 ## Todo
 
 1. 
