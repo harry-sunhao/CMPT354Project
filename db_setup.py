@@ -2,7 +2,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-engine = create_engine('mysql+pymysql://root:@localhost:3306/reratemm', convert_unicode=True)
+
+engine = create_engine('mysql+pymysql://root:123456@34.92.95.75:3306/ratemm', convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))

@@ -1,5 +1,5 @@
 # main.py
-from app import app
+from app import app, movie
 from db_setup import init_db, db_session
 from forms import SearchForm
 from flask import flash, render_template, request, redirect
@@ -25,4 +25,4 @@ def search_results(search):
         # display results
         return render_template('results.html', results=results)
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

@@ -2,21 +2,32 @@ import os
 import random
 
 import sqlalchemy
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from db_setup import db_session
+from forms import SearchForm
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/reratemm'
+app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
+app.secret_key = 'CMPT354PROJECT'
 db = SQLAlchemy(app, use_native_unicode='utf8')
 
-class user(db.Model):
+#User part start
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import UserMixin
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+class user(db.Model,UserMixin):
     __tablename__ = 'user'
     id = db.Column('id', db.INTEGER(), primary_key=True)
-    email = db.Column('email', db.VARCHAR(255), primary_key=True)
+    email = db.Column('email', db.VARCHAR(255),unique= True)
     music_rating_weight = db.Column(db.FLOAT(255))
     movie_rating_weight = db.Column(db.FLOAT(255))
     username = db.Column(db.VARCHAR(255))
@@ -28,13 +39,135 @@ class user(db.Model):
     movie_r_id = db.Column('movie_r_id', db.INTEGER(), db.ForeignKey('movierating.rate_id'))
     certified_musician = db.Column(db.VARCHAR(255))
 
-    def __init__(self, id, email, username, password):
+    def __init__(self, id,email, username, password):
+        self.id = id
         self.email = email
         self.username = username
         self.password = password
-        self.id = id
         self.music_rating_weight = 0
         self.movie_rating_weight = 0
+
+    def validate_password(self, password):
+        return check_password_hash(self.password, password)
+
+@login_manager.user_loader
+def load_user(user_id):
+    user_ = user.query.get(int(user_id))
+    return user_
+
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'POST':
+        name = request.form['name']
+
+        if not name or len(name) > 20:
+            flash('Invalid input.')
+            return redirect(url_for('settings'))
+        allUser = user.query.all()
+        for user_ in allUser:
+            if current_user.username == user_.username:
+                user_.username = name
+                db.session.commit()
+                flash('Settings updated.')
+                return redirect(url_for('index'))
+    return render_template('setting.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if not username or not password:
+            flash('Invalid input.')
+            return redirect(url_for('login'))
+
+        allUser = user.query.all()
+        for user_ in allUser:
+            if username == user_.username and user_.validate_password(password):
+                login_user(user_)
+                flash('Login success.')
+                return redirect(url_for('index'))
+
+        flash('Invalid username or password.')
+        return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Goodbye.')
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        if not request.form['username'] or not request.form['password'] or not request.form['email']:
+            flash('Please enter all the fields', 'error')
+        else:
+            username = request.form['username']
+            password = generate_password_hash(request.form['password'])
+            email = request.form['email']
+            if user.query.filter_by(email=email).first():
+                flash("email is exist, please change another email.")
+                return redirect(url_for('register'))
+            user_ = user.query.first()
+            if user_ is None:
+                id = 1;
+            else:
+                id = len(user.query.all())+1
+            t_user = user(id=id,email=email,username=username,password=password)
+            db.session.add(t_user)
+            db.session.commit()
+            flash('Add user '+request.form['username']+' successfully. ')
+            return redirect(url_for('login'))
+    return render_template('reg.html')
+
+@app.route('/userinfo')
+@login_required
+def show_all():
+    a_user = user.query.all()
+    return render_template('show_all.html', users=a_user)
+@app.route('/user/delete/<int:user_id>', methods=['GET'])
+@login_required
+def delete(user_id):
+    user_ = user.query.get_or_404(user_id)
+    db.session.delete(user_)
+    db.session.commit()
+    flash('Item deleted.')
+    return redirect(url_for('index'))
+
+@app.route('/')
+def index():
+    isLogin = False
+    username = ""
+    if 'username' in session:
+        username = session['username']
+        isLogin = True
+
+    return render_template('home.html',user=username,login=isLogin)
+
+#user part end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #many-Many relation for act
 act = db.Table('act',
     db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
@@ -212,7 +345,7 @@ class genre(db.Model):
     album_track_artist_movie = db.Column ('album_track_artist_movie', db.VARCHAR(255))
     artist= db.relationship('artist', backref='genre', lazy=True)
     album= db.relationship('album', backref='genre', lazy=True)
-    def __init__(self,id,name,country, date_of_birth):
+    def __init__(self,id,name,country, date_of_birth,album_track_artist_movie):
         self.id = id
         self.name = name
         self.album_track_artist_movie = album_track_artist_movie
@@ -250,10 +383,7 @@ def mov():
     movie.query.all()
     return render_template('movie.html', posts = movie.query.all())
 
-@app.route('/userinfo')
-def show_all():
-    a_user = user.query.all()
-    return render_template('show_all.html', users=a_user)
+
 
 @app.route('/actorinfo')
 def actors():
@@ -271,45 +401,13 @@ def albumcomments():
 def artists():
     return render_template('artist.html', artists=artist.query.all())
 
-@app.route('/reg', methods=['GET', 'POST'])
-def reg():
-    if request.method == 'POST':
-        if not request.form['username'] or not request.form['password'] or not request.form['email']:
-            flash('Please enter all the fields', 'error')
-        else:
-            print(request.form['username'], request.form['password'], request.form['email'])
-            temp_id = random.randint(1, 99999999999)
-            users = user.query.all()
 
-            isContain = 0
-            while (isContain == 0):
-                for temp in users:
-                    print(temp.id,temp.username,temp.email)
-                    if (temp.id == temp_id):
-                        temp_id = random.randint(1, 9999999)
-                        isContain = 0
-                        break
-                    if (temp.username == request.form['username']):
-                        flash('username is exist, please change it.')
-                        return render_template('reg.html')
-                    if (temp.email == request.form['email']):
-                        flash('email is exist, please change it.')
-                        return render_template('reg.html')
-
-                else:
-                    isContain = 1
-            t_user = user(temp_id, request.form['email'], request.form['username'], request.form['password'])
-            db.session.add(t_user)
-            db.session.commit()
-            flash('Add user '+request.form['username']+' successfully. ')
-            return redirect(url_for('show_all'))
-    return render_template('reg.html')
 
 #add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
 #and dont know how to get current time for createtime
 @app.route('/addcom', methods=['GET', 'POST'])
 
-def addcom():
+def addcom(comment_id=None):
     if request.method == 'POST':
         if not request.form['comment_id'] or not request.form['movie_id'] or not request.form['content']:
             flash('Please enter all the fields', 'error')
@@ -327,6 +425,19 @@ def addcom():
             return redirect(url_for('mov'))
     return render_template('addcom.html')
 
+@app.route('/results')
+def search_results(search):
+    results = []
+    search_string = search.data['search']
+    if search.data['search'] == '':
+        qry = db_session.query(movie)
+        results = qry.all()
+    if not results:
+        flash('No results found!')
+        return redirect('/')
+    else:
+        # display results
+        return render_template('results.html', results=results)
 
 
 if __name__ == '__main__':
