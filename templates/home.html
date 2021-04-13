@@ -4,5 +4,12 @@
     <meta charset="UTF-8">
     <title>Rate Music&Movie</title>
 </head>
-<body>Welcome</body>
+
+<body>
+    <p>
+    {%- for message in get_flashed_messages() %}
+    {{ message }} 
+    </p>
+  {%- endfor %}
+    Welcome</body>
 </html>

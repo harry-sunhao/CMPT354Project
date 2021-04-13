@@ -4,6 +4,7 @@ import random
 import sqlalchemy
 from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/reratemm'
@@ -238,15 +239,16 @@ class trackrating(db.Model):
         self.createtime = createtime
         self.value = value
 
-@app.route('/')
-def home():
-    return render_template('home.html')
+#@app.route('/')
+#def home():
+ #   flash('Add movie comment successfully. ')
+  #  return render_template('home.html')
+
 
 @app.route('/movie')
 def mov():
     movie.query.all()
     return render_template('movie.html', posts = movie.query.all())
-    
 
 @app.route('/userinfo')
 def show_all():
@@ -303,7 +305,8 @@ def reg():
             return redirect(url_for('show_all'))
     return render_template('reg.html')
 
-#add comment: works! but dont know how to get current time for createtime
+#add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
+#and dont know how to get current time for createtime
 @app.route('/addcom', methods=['GET', 'POST'])
 
 def addcom():
@@ -313,14 +316,14 @@ def addcom():
         else:
             print(request.form['comment_id'], request.form['movie_id'], request.form['content'])
             #temp_comment_id = random.randint(1, 99999999999)
+            comment_id = comment_id + 1
+            createtime = str(datetime.now())
             moviecomments = moviecomment.query.all()
 
-        
-            t_mov = moviecomment(request.form['comment_id'], request.form['movie_id'], 'createtime', request.form['content'])
+            t_mov = moviecomment(request.form['comment_id'], request.form['movie_id'], createtime, request.form['content'])
             db.session.add(t_mov)
             db.session.commit()
             flash('Add movie comment '+request.form['content']+' successfully. ')
-            flash('Add movie comment successfully. ')
             return redirect(url_for('mov'))
     return render_template('addcom.html')
 

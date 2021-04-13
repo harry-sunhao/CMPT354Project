@@ -15,7 +15,7 @@
             <div class="article-metadata">
               <a class="mr-2" href="#">{{ post.id }}</a>
             </div>
-            <h2><a class="article-title" href="http://127.0.0.1:5000/addcom">{{ post.title }}</a></h2>
+            <h2><a class="article-title" href="{{ url_for('addcom') }}">{{ post.title }}</a></h2>
             <p class="article-content">{{ post.detailed_information }}</p>
             <p>{{ post.moviecomments }}</p>
             <p>{{ post.act }}</p>
