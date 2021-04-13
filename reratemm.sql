@@ -24,36 +24,36 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `act`
+-- Table structure for table `Act`
 --
 
-DROP TABLE IF EXISTS `act`;
-CREATE TABLE IF NOT EXISTS `act` (
+DROP TABLE IF EXISTS `Act`;
+CREATE TABLE IF NOT EXISTS `Act` (
   `movie_id` int NOT NULL,
   `actor_id` int NOT NULL,
-  PRIMARY KEY (`movie_id`,`actor_id`) USING BTREE,
-  KEY `actor_id` (`actor_id`) USING BTREE
+  PRIMARY KEY (`movie_id`,`actor_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `act`
+-- Dumping data for table `Act`
 --
 
-INSERT INTO `act` (`movie_id`, `actor_id`) VALUES
+INSERT INTO `Act` (`movie_id`, `actor_id`) VALUES
 (5, 1),
 (4, 2),
 (2, 4),
 (1, 5),
-(3, 8);
+(2, 5),
+(3, 3);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `actor`
+-- Table structure for table `Actor`
 --
 
-DROP TABLE IF EXISTS `actor`;
-CREATE TABLE IF NOT EXISTS `actor` (
+DROP TABLE IF EXISTS `Actor`;
+CREATE TABLE IF NOT EXISTS `Actor` (
   `id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -62,167 +62,168 @@ CREATE TABLE IF NOT EXISTS `actor` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `actor`
+-- Dumping data for table `Actor`
 --
 
-INSERT INTO `actor` (`id`, `name`, `country`, `date_of_birth`) VALUES
+INSERT INTO `Actor` (`id`, `name`, `country`, `date_of_birth`) VALUES
 (1, 'Jackie Chan', 'Hong Kong', '19540407'),
 (2, 'Robert Downey Jr.', 'United States of America', '19650404'),
-(4, 'Takeru Satoh', 'Japan', '19890321'),
-(5, 'Hyun Bin', 'Korea', '19820925'),
-(8, 'Fan Bingbing', 'China', '19810916');
+(3, 'Takeru Satoh', 'Japan', '19890321'),
+(4, 'Hyun Bin', 'Korea', '19820925'),
+(5, 'Fan Bingbing', 'China', '19810916');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `album`
+-- Table structure for table `Album`
 --
 
-DROP TABLE IF EXISTS `album`;
-CREATE TABLE IF NOT EXISTS `album` (
+DROP TABLE IF EXISTS `Album`;
+CREATE TABLE IF NOT EXISTS `Album` (
   `id` int NOT NULL,
-  `cover` binary(1) DEFAULT NULL,
+  `cover` LONGBLOB DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `album_or_ep` int DEFAULT NULL,
   `releaseDate` datetime DEFAULT NULL,
-  `detailedInfo` text CHARACTER SET utf8 COLLATE utf8_bin,
-  `g_id` int DEFAULT NULL,
-  `track_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `c_id` int DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `g_id` (`g_id`) USING BTREE,
-  KEY `track_name` (`track_name`) USING BTREE,
-  KEY `c_id` (`c_id`) USING BTREE
+  `detailedInfo` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `album`
+-- Dumping data for table `Album`
 --
 
-INSERT INTO `album` (`id`, `cover`, `name`, `album_or_ep`, `releaseDate`, `detailedInfo`, `g_id`, `track_name`, `c_id`) VALUES
-(1, NULL, 'album_1', 1, '2020-01-01 00:00:00', 'test1', 1, 'track_2', 1),
-(2, NULL, 'album_2', 1, '2020-01-02 00:00:00', 'test2', 3, 'track_3', 4),
-(3, NULL, 'album_3', 1, '2020-01-03 00:00:00', 'test3', 2, 'track_4', 2),
-(4, NULL, 'album_4', 0, '2020-01-04 00:00:00', 'test4', 2, 'track_1', 5),
-(5, NULL, 'album_5', 1, '2020-01-05 00:00:00', 'test5', 5, 'track_5', 3);
+INSERT INTO `Album` (`id`, `cover`, `name`, `album_or_ep`, `releaseDate`, `detailedInfo`) VALUES
+(1, NULL, 'album_1', 1, '2020-01-01 00:00:00', 'info1'),
+(2, NULL, 'album_2', 1, '2020-01-02 00:00:00', 'info2'),
+(3, NULL, 'album_3', 1, '2020-01-03 00:00:00', 'info3'),
+(4, NULL, 'album_4', 0, '2020-01-04 00:00:00', 'info4'),
+(5, NULL, 'album_5', 1, '2020-01-05 00:00:00', 'info5');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `albumartists`
+-- Table structure for table `AlbumArtist`
 --
 
-DROP TABLE IF EXISTS `albumartists`;
-CREATE TABLE IF NOT EXISTS `albumartists` (
-  `id` int NOT NULL,
-  `artist` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  PRIMARY KEY (`id`,`artist`) USING BTREE
+DROP TABLE IF EXISTS `AlbumArtist`;
+CREATE TABLE IF NOT EXISTS `AlbumArtist` (
+  `album_id` int NOT NULL,
+  `artist_id` int NOT NULL,
+  PRIMARY KEY (`album_id`,`artist_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
+
+--
+-- Dumping data for table `AlbumArtist`
+--
+
+INSERT INTO `AlbumArtist` (`album_id`, `artist_id`) VALUES
+(1, 1),
+(2, 1),
+(3, 1),
+(4, 1),
+(5, 2);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `albumcomment`
+-- Table structure for table `AlbumComment`
 --
 
-DROP TABLE IF EXISTS `albumcomment`;
-CREATE TABLE IF NOT EXISTS `albumcomment` (
-  `comment_id` int NOT NULL DEFAULT '0',
-  `content` text CHARACTER SET utf8 COLLATE utf8_bin,
+DROP TABLE IF EXISTS `AlbumComment`;
+CREATE TABLE IF NOT EXISTS `AlbumComment` (
+  `comment_id` int NOT NULL,
+  `content` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `createtime` datetime DEFAULT NULL,
+  `album_id` int NOT NULL,
+  `user_id` int NOT NULL,
   PRIMARY KEY (`comment_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `albumcomment`
+-- Dumping data for table `AlbumComment`
 --
 
-INSERT INTO `albumcomment` (`comment_id`, `content`, `createtime`) VALUES
-(1, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-01 00:00:00'),
-(2, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-02 00:00:00'),
-(3, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-03 00:00:00'),
-(4, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-04 00:00:00'),
-(5, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-05 00:00:00');
+INSERT INTO `AlbumComment` (`comment_id`, `content`, `createtime`, `album_id`, `user_id`) VALUES
+(1, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-01 00:00:00', 1, 31703000),
+(2, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-02 00:00:00', 1, 31703001),
+(3, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-03 00:00:00', 1, 31703003),
+(4, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-04 00:00:00', 1, 31703003),
+(5, '{content1:\"content1\",content2:\"conten2\"}', '2019-01-05 00:00:00', 1, 31703004);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `albumrating`
+-- Table structure for table `AlbumRating`
 --
 
-DROP TABLE IF EXISTS `albumrating`;
-CREATE TABLE IF NOT EXISTS `albumrating` (
+DROP TABLE IF EXISTS `AlbumRating`;
+CREATE TABLE IF NOT EXISTS `AlbumRating` (
   `rate_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
-  `value` double DEFAULT NULL,
+  `value` int DEFAULT NULL,
+  `album_id` int NOT NULL,
+  `user_id` int NOT NULL,
   PRIMARY KEY (`rate_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `albumrating`
+-- Dumping data for table `AlbumRating`
 --
 
-INSERT INTO `albumrating` (`rate_id`, `createtime`, `value`) VALUES
-(1, '2020-03-01 00:00:00', 1),
-(2, '2020-03-02 00:00:00', 2),
-(3, '2020-03-03 00:00:00', 5.5),
-(4, '2020-03-04 00:00:00', 6.6),
-(5, '2020-03-05 00:00:00', 9.8);
+INSERT INTO `AlbumRating` (`rate_id`, `createtime`, `value`, `album_id`, `user_id`) VALUES
+(1, '2020-03-01 00:00:00', 9, 1, 31703000),
+(2, '2020-03-02 00:00:00', 10, 1, 31703001),
+(3, '2020-03-03 00:00:00', 8, 2, 31703002),
+(4, '2020-03-04 00:00:00', 9, 2, 31703003),
+(5, '2020-03-05 00:00:00', 8, 3, 31703003);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `artist`
+-- Table structure for table `Artist`
 --
 
-DROP TABLE IF EXISTS `artist`;
-CREATE TABLE IF NOT EXISTS `artist` (
+DROP TABLE IF EXISTS `Artist`;
+CREATE TABLE IF NOT EXISTS `Artist` (
   `id` int NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `portrait` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `detailedinfo` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `company` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `g_id` int DEFAULT NULL,
-  `track_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `album_id` int DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `g_id` (`g_id`) USING BTREE,
-  KEY `track_name` (`track_name`) USING BTREE,
-  KEY `album_id` (`album_id`) USING BTREE
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `portrait` LONGBLOB DEFAULT NULL,
+  `detailedinfo` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `company` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `artist`
+-- Dumping data for table `Artist`
 --
 
-INSERT INTO `artist` (`id`, `name`, `portrait`, `detailedinfo`, `company`, `country`, `g_id`, `track_name`, `album_id`) VALUES
-(0, 'a', '', '', '', '', 2, 'track_1', 1),
-(2, 'b', 'None', 'None', 'MicroSoft', 'Canada', 1, 'track_2', 1),
-(3, 'c', 'None', 'None', 'MicroSoft', 'Canada', 2, 'track_1', 5),
-(4, 'd', 'None', 'None', 'SFU', 'Canada', 1, 'track_4', 4),
-(5, 'e', 'None', 'None', 'SFU', 'Canada', 1, 'track_5', 3);
+INSERT INTO `Artist` (`id`, `name`, `portrait`, `detailedinfo`, `company`, `country`) VALUES
+(1, 'Pink Floyd', NULL, 'info1', 'Columbia Records', 'British'),
+(2, 'b', NULL, 'info2', 'MicroSoft', 'Canada'),
+(3, 'c', NULL, 'info3', 'MicroSoft', 'Canada'),
+(4, 'd', NULL, 'info4', 'SFU', 'Canada'),
+(5, 'e', NULL, 'info5', 'SFU', 'Canada');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `direct`
+-- Table structure for table `Direct`
 --
 
-DROP TABLE IF EXISTS `direct`;
-CREATE TABLE IF NOT EXISTS `direct` (
+DROP TABLE IF EXISTS `Direct`;
+CREATE TABLE IF NOT EXISTS `Direct` (
   `movie_id` int NOT NULL,
   `director_id` int NOT NULL,
-  PRIMARY KEY (`movie_id`,`director_id`) USING BTREE,
-  KEY `director_id` (`director_id`) USING BTREE,
-  KEY `movie_id` (`movie_id`) USING BTREE
+  PRIMARY KEY (`movie_id`,`director_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `direct`
+-- Dumping data for table `Direct`
 --
 
-INSERT INTO `direct` (`movie_id`, `director_id`) VALUES
+INSERT INTO `Direct` (`movie_id`, `director_id`) VALUES
 (5, 1),
 (4, 2),
 (3, 3),
@@ -232,11 +233,11 @@ INSERT INTO `direct` (`movie_id`, `director_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `director`
+-- Table structure for table `Director`
 --
 
-DROP TABLE IF EXISTS `director`;
-CREATE TABLE IF NOT EXISTS `director` (
+DROP TABLE IF EXISTS `Director`;
+CREATE TABLE IF NOT EXISTS `Director` (
   `id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -245,24 +246,24 @@ CREATE TABLE IF NOT EXISTS `director` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `director`
+-- Dumping data for table `Director`
 --
 
-INSERT INTO `director` (`id`, `name`, `country`, `date_of_birth`) VALUES
-(1, 'director_1', 'country_1', '20200201'),
-(2, 'director_2', 'country_2', '20200202'),
-(3, 'director_3', 'country_3', '20200301'),
-(4, 'director_4', 'country_4', '20200203'),
-(5, 'director_5', 'country_5', '20200204');
+INSERT INTO `Director` (`id`, `name`, `country`, `date_of_birth`) VALUES
+(1, 'director_1', 'country_1', '19700201'),
+(2, 'director_2', 'country_2', '19700202'),
+(3, 'director_3', 'country_3', '19700301'),
+(4, 'director_4', 'country_4', '19700203'),
+(5, 'director_5', 'country_5', '19700204');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `genre`
+-- Table structure for table `Genre`
 --
 
-DROP TABLE IF EXISTS `genre`;
-CREATE TABLE IF NOT EXISTS `genre` (
+DROP TABLE IF EXISTS `Genre`;
+CREATE TABLE IF NOT EXISTS `Genre` (
   `id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `album_track_artist_movie` int DEFAULT NULL,
@@ -270,10 +271,10 @@ CREATE TABLE IF NOT EXISTS `genre` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `genre`
+-- Dumping data for table `Genre`
 --
 
-INSERT INTO `genre` (`id`, `name`, `album_track_artist_movie`) VALUES
+INSERT INTO `Genre` (`id`, `name`, `album_track_artist_movie`) VALUES
 (1, 'genre_1', 1),
 (2, 'genre_2', 2),
 (3, 'genre_3', 3),
@@ -283,218 +284,195 @@ INSERT INTO `genre` (`id`, `name`, `album_track_artist_movie`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `movie`
+-- Table structure for table `Movie`
 --
 
-DROP TABLE IF EXISTS `movie`;
-CREATE TABLE IF NOT EXISTS `movie` (
+DROP TABLE IF EXISTS `Movie`;
+CREATE TABLE IF NOT EXISTS `Movie` (
   `id` int NOT NULL,
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `release_date` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `detailed_information` text CHARACTER SET utf8 COLLATE utf8_bin,
+  `detailed_information` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `director_id` int DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `movie`
+-- Dumping data for table `Movie`
 --
 
-INSERT INTO `movie` (`id`, `title`, `release_date`, `country`, `detailed_information`) VALUES
-(1, 'movie_1', '20180505', 'China', 'detalied_movie_1'),
-(2, 'movie_2', '20180502', 'China', 'detalied_movie_2'),
-(3, 'movie_3', '20180503', 'China', 'detalied_movie_3'),
-(4, 'movie_4', '20180504', 'China', 'detalied_movie_4'),
-(5, 'movie_5', '20180505', 'China', 'detalied_movie_5');
+INSERT INTO `Movie` (`id`, `title`, `release_date`, `country`, `detailed_information`, `director_id`) VALUES
+(1, 'movie_1', '20180505', 'China', 'movie_info_1', 1),
+(2, 'movie_2', '20180502', 'China', 'movie_info_2', 1),
+(3, 'movie_3', '20180503', 'China', 'movie_info_3', 2),
+(4, 'movie_4', '20180504', 'China', 'movie_info_4', 3),
+(5, 'movie_5', '20180505', 'China', 'movie_info_5', 4);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `moviecomment`
+-- Table structure for table `MovieComment`
 --
 
-DROP TABLE IF EXISTS `moviecomment`;
-CREATE TABLE IF NOT EXISTS `moviecomment` (
+DROP TABLE IF EXISTS `MovieComment`;
+CREATE TABLE IF NOT EXISTS `MovieComment` (
   `comment_id` int NOT NULL,
-  `movie_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
   `content` text CHARACTER SET utf8 COLLATE utf8_bin,
-  PRIMARY KEY (`comment_id`,`movie_id`) USING BTREE,
-  KEY `movie_id` (`movie_id`) USING BTREE
+  `movie_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`comment_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `moviecomment`
+-- Dumping data for table `MovieComment`
 --
 
-INSERT INTO `moviecomment` (`comment_id`, `movie_id`, `createtime`, `content`) VALUES
-(1, 1, '2020-01-01 00:00:00', 'comment_1'),
-(2, 1, '2020-02-01 00:00:00', 'comment_2'),
-(3, 2, '2020-03-01 00:00:00', 'comment_3'),
-(4, 2, '2020-04-01 00:00:00', 'comment_4'),
-(5, 4, '2020-05-01 00:00:00', 'comment_5');
+INSERT INTO `MovieComment` (`comment_id`, `createtime`, `content`, `movie_id`, `user_id`) VALUES
+(1, '2020-01-01 00:00:00', 'comment_1', 1, 31703001),
+(2, '2020-02-01 00:00:00', 'comment_2', 2, 31703001),
+(3, '2020-03-01 00:00:00', 'comment_3', 2, 31703002),
+(4, '2020-04-01 00:00:00', 'comment_4', 4, 31703003),
+(5, '2020-05-01 00:00:00', 'comment_5', 5, 31703004);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `movierating`
+-- Table structure for table `MovieRating`
 --
 
-DROP TABLE IF EXISTS `movierating`;
-CREATE TABLE IF NOT EXISTS `movierating` (
+DROP TABLE IF EXISTS `MovieRating`;
+CREATE TABLE IF NOT EXISTS `MovieRating` (
   `rate_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
-  `value` double DEFAULT NULL,
+  `value` int DEFAULT NULL,
+  `movie_id` int NOT NULL,
+  `user_id` int NOT NULL,
   PRIMARY KEY (`rate_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `movierating`
+-- Dumping data for table `MovieRating`
 --
 
-INSERT INTO `movierating` (`rate_id`, `createtime`, `value`) VALUES
-(1, '2020-02-01 00:00:00', 1.5),
-(2, '2020-02-01 00:00:00', 2.5),
-(3, '2020-03-01 00:00:00', 3.5),
-(4, '2020-04-01 00:00:00', 4.5),
-(5, '2020-05-01 00:00:00', 5.5);
+INSERT INTO `MovieRating` (`rate_id`, `createtime`, `value`, `movie_id`, `user_id`) VALUES
+(1, '2020-02-01 00:00:00', 7, 1, 31703001),
+(2, '2020-02-01 00:00:00', 6, 2, 31703003),
+(3, '2020-03-01 00:00:00', 8, 3, 31703003),
+(4, '2020-04-01 00:00:00', 5, 4, 31703004),
+(5, '2020-05-01 00:00:00', 10, 5, 31703004);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `producealbum`
+-- Table structure for table `TrackArtist`
 --
 
-DROP TABLE IF EXISTS `producealbum`;
-CREATE TABLE IF NOT EXISTS `producealbum` (
-  `albumID` int NOT NULL DEFAULT '0',
-  `artistID` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`albumID`,`artistID`) USING BTREE,
-  KEY `artistID` (`artistID`) USING BTREE
+DROP TABLE IF EXISTS `TrackArtist`;
+CREATE TABLE IF NOT EXISTS `TrackArtist` (
+  `track_name` varchar(225) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `album_id` int NOT NULL,
+  `artist_id` int NOT NULL,
+  PRIMARY KEY (`track_name`, `album_id`, `artist_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `producealbum`
+-- Dumping data for table `TrackArtist`
 --
 
-INSERT INTO `producealbum` (`albumID`, `artistID`) VALUES
-(1, 0),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+INSERT INTO `TrackArtist` (`track_name`, `album_id`, `artist_id`) VALUES
+('track_1', 1, 1),
+('track_2', 1, 1),
+('track_3', 1, 1),
+('track_4', 1, 1),
+('track_1', 2, 1),
+('track_1', 5, 2);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `producetrack`
+-- Table structure for table `Track`
 --
 
-DROP TABLE IF EXISTS `producetrack`;
-CREATE TABLE IF NOT EXISTS `producetrack` (
-  `name` varchar(225) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `artistID` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`name`,`artistID`) USING BTREE,
-  KEY `artistID` (`artistID`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
-
---
--- Dumping data for table `producetrack`
---
-
-INSERT INTO `producetrack` (`name`, `artistID`) VALUES
-('track_1', 0),
-('track_3', 2),
-('track_4', 3),
-('track_5', 4),
-('track_2', 5);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `track`
---
-
-DROP TABLE IF EXISTS `track`;
-CREATE TABLE IF NOT EXISTS `track` (
+DROP TABLE IF EXISTS `Track`;
+CREATE TABLE IF NOT EXISTS `Track` (
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `lyrics` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  PRIMARY KEY (`name`) USING BTREE
+  `album_id` int NOT NULL,
+  PRIMARY KEY (`name`, `album_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `track`
+-- Dumping data for table `Track`
 --
 
-INSERT INTO `track` (`name`, `lyrics`) VALUES
-('track_1', 'lyrics_1'),
-('track_2', 'lyrics_2'),
-('track_3', 'lyrics_3'),
-('track_4', 'lyrics_4'),
-('track_5', 'lyrics_5');
+INSERT INTO `Track` (`name`, `album_id`) VALUES
+('track_1', 1),
+('track_2', 1),
+('track_3', 1),
+('track_4', 1),
+('track_1', 2),
+('track_1', 5);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `trackrating`
+-- Table structure for table `TrackRating`
 --
 
-DROP TABLE IF EXISTS `trackrating`;
-CREATE TABLE IF NOT EXISTS `trackrating` (
+DROP TABLE IF EXISTS `TrackRating`;
+CREATE TABLE IF NOT EXISTS `TrackRating` (
   `rate_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
-  `value` double DEFAULT NULL,
+  `value` int DEFAULT NULL,
+  `track_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `album_id` int NOT NULL,
+  `user_id` int NOT NULL,
   PRIMARY KEY (`rate_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `trackrating`
+-- Dumping data for table `TrackRating`
 --
 
-INSERT INTO `trackrating` (`rate_id`, `createtime`, `value`) VALUES
-(1, '2020-01-01 00:00:00', 10),
-(2, '2020-01-01 00:00:00', 9),
-(3, '2020-01-01 00:00:00', 8.8),
-(4, '2020-01-01 00:00:00', 6),
-(5, '2020-01-01 00:00:00', 5);
+INSERT INTO `TrackRating` (`rate_id`, `createtime`, `value`, `track_name`, `album_id`, `user_id`) VALUES
+(1, '2020-01-01 00:00:00', 10, 'track_1', 1, 31703001),
+(2, '2020-01-01 00:00:00', 9, 'track_1', 1, 31703001),
+(3, '2020-01-01 00:00:00', 8, 'track_1', 1, 31703001),
+(4, '2020-01-01 00:00:00', 6, 'track_2', 1, 31703001),
+(5, '2020-01-01 00:00:00', 5, 'track_2', 1, 31703001);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Table structure for table `User`
 --
 
-DROP TABLE IF EXISTS `user`;
-CREATE TABLE IF NOT EXISTS `user` (
+DROP TABLE IF EXISTS `User`;
+CREATE TABLE IF NOT EXISTS `User` (
   `id` int NOT NULL,
   `email` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `music_rating_weight` double DEFAULT NULL,
   `movie_rating_weight` double DEFAULT NULL,
   `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `album_r_id` int DEFAULT NULL,
-  `album_c_id` int DEFAULT NULL,
-  `track_r_id` int DEFAULT NULL,
-  `movie_c_id` int DEFAULT NULL,
-  `movie_r_id` int DEFAULT NULL,
-  `certified_musician` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`,`email`) USING BTREE,
-  KEY `album_r_id` (`album_r_id`) USING BTREE,
-  KEY `album_c_id` (`album_c_id`) USING BTREE,
-  KEY `track_r_id` (`track_r_id`) USING BTREE,
-  KEY `movie_c_id` (`movie_c_id`) USING BTREE,
-  KEY `movie_r_id` (`movie_r_id`) USING BTREE
+  `certification_information` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE (`email`),
+  UNIQUE (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `User`
 --
 
-INSERT INTO `user` (`id`, `email`, `music_rating_weight`, `movie_rating_weight`, `username`, `password`, `album_r_id`, `album_c_id`, `track_r_id`, `movie_c_id`, `movie_r_id`, `certified_musician`) VALUES
-(2147483647, '6@sfu.ca', 0, 0, 'test_6', '123456', NULL, NULL, NULL, NULL, NULL, NULL),
-(2147483647, '7@sfu.ca', 0, 0, 'test_7', '123456', NULL, NULL, NULL, NULL, NULL, NULL),
-(2147483647, 'fghf', 0, 0, 'ghf', 'fgh', NULL, NULL, NULL, NULL, NULL, NULL),
-(2147483647, 'lkljk', 0, 0, '45', 'jjlh', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `User` (`id`, `email`, `music_rating_weight`, `movie_rating_weight`, `username`, `password`, `certification_information`) VALUES
+(31703000, '6@sfu.ca', 7, 10, 'user0', '123456', 'Keyboard of Band Re-tros.'),
+(31703001, '7@sfu.ca', 5, 5, 'user1', '123456', NULL),
+(31703002, 'fghf', 5, 5, 'user2', 'fgh', NULL),
+(31703003, 'lkljk', 5, 5, 'user3', 'jjlh', NULL),
+(31703004, 'fghf', 5, 5, 'user4', 'fgh', NULL),
+(31703005, 'lkljk', 5, 5, 'user5', 'jjlh', NULL);
 
 --
 -- Constraints for dumped tables
