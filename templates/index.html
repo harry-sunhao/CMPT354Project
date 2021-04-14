@@ -12,11 +12,10 @@
 {% endwith %}
 {% from "_formhelpers.html" import render_field %}
 <form method="post">
-  <dl>
+  <p>
     {{ render_field(form.select) }}
     <p>
     {{ render_field(form.search) }}
-  </p></dl>
-  <p><input type="submit" value="Search">
+    <input type="submit" value="Search">
 </p></form>
 </doctype>
