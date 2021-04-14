@@ -83,11 +83,12 @@ INSERT INTO `Actor` (`id`, `name`, `country`, `date_of_birth`) VALUES
 DROP TABLE IF EXISTS `Album`;
 CREATE TABLE IF NOT EXISTS `Album` (
   `id` int NOT NULL,
-  `cover` LONGBLOB DEFAULT NULL,
+  `cover` varchar(255) DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `album_or_ep` int DEFAULT NULL,
   `releaseDate` datetime DEFAULT NULL,
   `detailedInfo` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `genre_id` int DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
@@ -95,12 +96,12 @@ CREATE TABLE IF NOT EXISTS `Album` (
 -- Dumping data for table `Album`
 --
 
-INSERT INTO `Album` (`id`, `cover`, `name`, `album_or_ep`, `releaseDate`, `detailedInfo`) VALUES
-(1, NULL, 'album_1', 1, '2020-01-01 00:00:00', 'info1'),
-(2, NULL, 'album_2', 1, '2020-01-02 00:00:00', 'info2'),
-(3, NULL, 'album_3', 1, '2020-01-03 00:00:00', 'info3'),
-(4, NULL, 'album_4', 0, '2020-01-04 00:00:00', 'info4'),
-(5, NULL, 'album_5', 1, '2020-01-05 00:00:00', 'info5');
+INSERT INTO `Album` (`id`, `cover`, `name`, `album_or_ep`, `releaseDate`, `detailedInfo`, `genre_id`) VALUES
+(1, NULL, 'album_1', 1, '2020-01-01 00:00:00', 'info1', 4),
+(2, NULL, 'album_2', 1, '2020-01-02 00:00:00', 'info2', 4),
+(3, NULL, 'album_3', 1, '2020-01-03 00:00:00', 'info3', 4),
+(4, NULL, 'album_4', 0, '2020-01-04 00:00:00', 'info4', 4),
+(5, NULL, 'album_5', 1, '2020-01-05 00:00:00', 'info5', 4);
 
 -- --------------------------------------------------------
 
@@ -195,10 +196,11 @@ DROP TABLE IF EXISTS `Artist`;
 CREATE TABLE IF NOT EXISTS `Artist` (
   `id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `portrait` LONGBLOB DEFAULT NULL,
+  `portrait` varchar(255) DEFAULT NULL,
   `detailedinfo` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `company` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `genre_id` int DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
@@ -206,12 +208,12 @@ CREATE TABLE IF NOT EXISTS `Artist` (
 -- Dumping data for table `Artist`
 --
 
-INSERT INTO `Artist` (`id`, `name`, `portrait`, `detailedinfo`, `company`, `country`) VALUES
-(1, 'Pink Floyd', NULL, 'info1', 'Columbia Records', 'British'),
-(2, 'b', NULL, 'info2', 'MicroSoft', 'Canada'),
-(3, 'c', NULL, 'info3', 'MicroSoft', 'Canada'),
-(4, 'd', NULL, 'info4', 'SFU', 'Canada'),
-(5, 'e', NULL, 'info5', 'SFU', 'Canada');
+INSERT INTO `Artist` (`id`, `name`, `portrait`, `detailedinfo`, `company`, `country`, `genre_id`) VALUES
+(1, 'Pink Floyd', NULL, 'info1', 'Columbia Records', 'British', 5),
+(2, 'b', NULL, 'info2', 'MicroSoft', 'Canada', 5),
+(3, 'c', NULL, 'info3', 'MicroSoft', 'Canada', 5),
+(4, 'd', NULL, 'info4', 'SFU', 'Canada', 5),
+(5, 'e', NULL, 'info5', 'SFU', 'Canada', 5);
 
 -- --------------------------------------------------------
 
@@ -284,11 +286,11 @@ CREATE TABLE IF NOT EXISTS `Genre` (
 --
 
 INSERT INTO `Genre` (`id`, `name`, `album_track_artist_movie`) VALUES
-(1, 'genre_1', 1),
+(1, 'genre_1', 2),
 (2, 'genre_2', 2),
-(3, 'genre_3', 3),
-(4, 'genre_4', 4),
-(5, 'genre_5', 1);
+(3, 'genre_3', 4),
+(4, 'genre_4', 1),
+(5, 'genre_5', 3);
 
 -- --------------------------------------------------------
 
@@ -303,6 +305,7 @@ CREATE TABLE IF NOT EXISTS `Movie` (
   `release_date` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `detailed_information` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `genre_id` int DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
 
@@ -310,12 +313,12 @@ CREATE TABLE IF NOT EXISTS `Movie` (
 -- Dumping data for table `Movie`
 --
 
-INSERT INTO `Movie` (`id`, `title`, `release_date`, `country`, `detailed_information`) VALUES
-(1, 'movie_1', '20180505', 'China', 'movie_info_1'),
-(2, 'movie_2', '20180502', 'China', 'movie_info_2'),
-(3, 'movie_3', '20180503', 'China', 'movie_info_3'),
-(4, 'movie_4', '20180504', 'China', 'movie_info_4'),
-(5, 'movie_5', '20180505', 'China', 'movie_info_5');
+INSERT INTO `Movie` (`id`, `title`, `release_date`, `country`, `detailed_information`, `genre_id`) VALUES
+(1, 'movie_1', '20180505', 'China', 'movie_info_1', 3),
+(2, 'movie_2', '20180502', 'China', 'movie_info_2', 3),
+(3, 'movie_3', '20180503', 'China', 'movie_info_3', 3),
+(4, 'movie_4', '20180504', 'China', 'movie_info_4', 3),
+(5, 'movie_5', '20180505', 'China', 'movie_info_5', 3);
 
 -- --------------------------------------------------------
 
@@ -413,6 +416,7 @@ CREATE TABLE IF NOT EXISTS `Track` (
   `id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `album_id` int NOT NULL,
+  `genre_id` int DEFAULT NULL,
   PRIMARY KEY (`id`, `album_id`) USING BTREE,
   INDEX `album_id_fk` (`album_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
@@ -421,13 +425,13 @@ CREATE TABLE IF NOT EXISTS `Track` (
 -- Dumping data for table `Track`
 --
 
-INSERT INTO `Track` (`id`, `name`, `album_id`) VALUES
-(1, 'track_1', 1),
-(2, 'track_2', 1),
-(3, 'track_3', 1),
-(4, 'track_4', 1),
-(1, 'track_1', 2),
-(1, 'track_1', 5);
+INSERT INTO `Track` (`id`, `name`, `album_id`, `genre_id`) VALUES
+(1, 'track_1', 1, 1),
+(2, 'track_2', 1, 1),
+(3, 'track_3', 1, 1),
+(4, 'track_4', 1, 1),
+(1, 'track_1', 2, 2),
+(1, 'track_1', 5, 2);
 
 -- --------------------------------------------------------
 
@@ -521,6 +525,18 @@ ALTER TABLE `AlbumRating`
   ADD CONSTRAINT `ar_user_fk` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `Album`
+--
+ALTER TABLE `Album`
+  ADD CONSTRAINT `album_genre_fk` FOREIGN KEY (`genre_id`) REFERENCES `Genre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `Artist`
+--
+ALTER TABLE `Artist`
+  ADD CONSTRAINT `artist_genre_fk` FOREIGN KEY (`genre_id`) REFERENCES `Genre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `Direct`
 --
 ALTER TABLE `Direct`
@@ -542,6 +558,12 @@ ALTER TABLE `MovieRating`
   ADD CONSTRAINT `mr_user_fk` FOREIGN KEY (`user_id`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `Movie`
+--
+ALTER TABLE `Movie`
+  ADD CONSTRAINT `movie_genre_fk` FOREIGN KEY (`genre_id`) REFERENCES `Genre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `TrackArtist`
 --
 ALTER TABLE `TrackArtist`
@@ -553,6 +575,7 @@ ALTER TABLE `TrackArtist`
 --
 ALTER TABLE `Track`
   ADD CONSTRAINT `track_album_fk` FOREIGN KEY (`album_id`) REFERENCES `Album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `track_genre_fk` FOREIGN KEY (`genre_id`) REFERENCES `Genre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `TrackRating`
