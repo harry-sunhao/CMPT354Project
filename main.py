@@ -6,12 +6,12 @@ from flask import flash, render_template, request, redirect
 from tables import Results, ResultsMov, ResultsArtist, ResultsDirector, ResultsActor, ResultsTrack
 
 init_db()
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/search', methods=['GET', 'POST'])
+def search():
     search = SearchForm(request.form)
     if request.method == 'POST':
         return search_results(search)
-    return render_template('index.html', form=search)
+    return render_template('search.html', form=search)
 
 @app.route('/results')
 def search_results(search):
@@ -49,14 +49,14 @@ def search_results(search):
             table = ResultsDirector(results)
         else:
             flash('No results found!')
-            return redirect('/')
+            return redirect('/search')
     else:
         flash('Please fill the fields')
-        return redirect('/')
+        return redirect('/search')
 
     if not results:
         flash('No results found wrong input!')
-        return redirect('/')
+        return redirect('/search')
     else:
         # display results
 
@@ -68,4 +68,4 @@ def search_results(search):
     #return render_template('album.html', albums=album.query.all())
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
