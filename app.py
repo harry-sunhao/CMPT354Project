@@ -5,6 +5,7 @@ import sqlalchemy
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy.orm import relationship, backref
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -15,7 +16,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SECRET_KEY'] = os.urandom(24)
 app.secret_key = 'CMPT354PROJECT'
 db = SQLAlchemy(app, use_native_unicode='utf8')
 
@@ -46,7 +46,7 @@ class user(db.Model,UserMixin):
         self.password = password
         self.music_rating_weight = 0
         self.movie_rating_weight = 0
-
+        
     def validate_password(self, password):
         return check_password_hash(self.password, password)
 
@@ -251,9 +251,9 @@ class album (db.Model):
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_name= db.Column ('track_name', db.VARCHAR(255), db.ForeignKey('track.name'))
     c_id= db.Column ('c_id', db.INTEGER(), db.ForeignKey('albumcomment.comment_id'))
-    #artist= db.relationship('artist', backref='album', lazy=True)
-    producealbum = db.relationship('artist', secondary=producealbum, lazy='subquery',
-        backref=db.backref('album', lazy=True))
+    artist= db.relationship('artist', backref='album', lazy=True)
+    #producealbum = db.relationship('artist', secondary=producealbum, lazy='subquery',
+        #backref=db.backref('album', lazy=True))
     def __init__(self,cover,id,name,album_or_ep,releaseDate,detailedInfo,g_id,track_name,c_id):
         self.id = id
         self.cover = cover
@@ -276,10 +276,10 @@ class artist (db.Model):
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_name= db.Column ('track_name', db.VARCHAR(255),db.ForeignKey('track.name')
     )
-    album_id= db.Column ('album_id', db.INTEGER()#, db.ForeignKey('album.id')
+    album_id= db.Column ('album_id', db.INTEGER(), db.ForeignKey('album.id')
     )
-    producealbum = db.relationship('album', secondary=producealbum, lazy='subquery',
-        backref=db.backref('artist', lazy=True))
+    #producealbum = db.relationship('album', secondary=producealbum, lazy='subquery',
+    #    backref=db.backref('artist', lazy=True))
     
                 
     def __init__(self,id,name,portrait,detailedInfo,company,country,g_id,track_name,album_id):
@@ -372,18 +372,10 @@ class trackrating(db.Model):
         self.createtime = createtime
         self.value = value
 
-#@app.route('/')
-#def home():
- #   flash('Add movie comment successfully. ')
-  #  return render_template('home.html')
-
-
 @app.route('/movie')
 def mov():
     movie.query.all()
     return render_template('movie.html', posts = movie.query.all())
-
-
 
 @app.route('/actorinfo')
 def actors():
@@ -400,8 +392,6 @@ def albumcomments():
 @app.route('/artistinfo')
 def artists():
     return render_template('artist.html', artists=artist.query.all())
-
-
 
 #add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
 #and dont know how to get current time for createtime
@@ -425,21 +415,8 @@ def addcom(comment_id=None):
             return redirect(url_for('mov'))
     return render_template('addcom.html')
 
-@app.route('/results')
-def search_results(search):
-    results = []
-    search_string = search.data['search']
-    if search.data['search'] == '':
-        qry = db_session.query(movie)
-        results = qry.all()
-    if not results:
-        flash('No results found!')
-        return redirect('/')
-    else:
-        # display results
-        return render_template('results.html', results=results)
 
 
 if __name__ == '__main__':
     db.create_all()
-    app.run(debug=True)
+    app.run()
