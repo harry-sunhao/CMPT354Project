@@ -5,9 +5,10 @@ import sqlalchemy
 from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy.orm import relationship, backref
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/reratemm'
+app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -118,9 +119,9 @@ class album (db.Model):
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_name= db.Column ('track_name', db.VARCHAR(255), db.ForeignKey('track.name'))
     c_id= db.Column ('c_id', db.INTEGER(), db.ForeignKey('albumcomment.comment_id'))
-    #artist= db.relationship('artist', backref='album', lazy=True)
-    producealbum = db.relationship('artist', secondary=producealbum, lazy='subquery',
-        backref=db.backref('album', lazy=True))
+    artist= db.relationship('artist', backref='album', lazy=True)
+    #producealbum = db.relationship('artist', secondary=producealbum, lazy='subquery',
+        #backref=db.backref('album', lazy=True))
     def __init__(self,cover,id,name,album_or_ep,releaseDate,detailedInfo,g_id,track_name,c_id):
         self.id = id
         self.cover = cover
@@ -143,10 +144,10 @@ class artist (db.Model):
     g_id= db.Column ('g_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_name= db.Column ('track_name', db.VARCHAR(255),db.ForeignKey('track.name')
     )
-    album_id= db.Column ('album_id', db.INTEGER()#, db.ForeignKey('album.id')
+    album_id= db.Column ('album_id', db.INTEGER(), db.ForeignKey('album.id')
     )
-    producealbum = db.relationship('album', secondary=producealbum, lazy='subquery',
-        backref=db.backref('artist', lazy=True))
+    #producealbum = db.relationship('album', secondary=producealbum, lazy='subquery',
+    #    backref=db.backref('artist', lazy=True))
     
                 
     def __init__(self,id,name,portrait,detailedInfo,company,country,g_id,track_name,album_id):
