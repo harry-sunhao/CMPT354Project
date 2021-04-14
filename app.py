@@ -254,16 +254,18 @@ class album (db.Model):
     artist= db.relationship('artist', backref='album', lazy=True)
     #producealbum = db.relationship('artist', secondary=producealbum, lazy='subquery',
         #backref=db.backref('album', lazy=True))
-    def __init__(self,cover,id,name,album_or_ep,releaseDate,detailedInfo,g_id,track_name,c_id):
+    def __init__(self,id,#cover,
+            name,album_or_ep,releaseDate,detailedInfo):
+            #,g_id,track_name,c_id):
         self.id = id
-        self.cover = cover
+        #self.cover = cover
         self.name = name
         self.album_or_ep = album_or_ep
         self.releaseDate = releaseDate
         self.detailedInfo = detailedInfo
-        self.g_id = g_id
-        self.track_name = track_name
-        self.c_id = c_id
+        #self.g_id = g_id
+        #self.track_name = track_name
+        #self.c_id = c_id
 
 class artist (db.Model):
     __tablename__ = 'artist'
@@ -404,7 +406,6 @@ def addcom(comment_id=None):
         else:
             print(request.form['comment_id'], request.form['movie_id'], request.form['content'])
             #temp_comment_id = random.randint(1, 99999999999)
-            comment_id = comment_id + 1
             createtime = str(datetime.now())
             moviecomments = moviecomment.query.all()
 
@@ -417,6 +418,8 @@ def addcom(comment_id=None):
 
 
 
+
+
 if __name__ == '__main__':
     db.create_all()
-    app.run()
+    app.run(debug=True)

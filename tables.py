@@ -1,6 +1,5 @@
-from flask_table import Table, Col
+from flask_table import Table, Col, LinkCol
 class Results(Table):
-
     id = Col('ID')
     cover = Col ('Cover' ) 
     name = Col('Album Name')
@@ -11,6 +10,8 @@ class Results(Table):
     track_name= Col ('Track Names')
     c_id = Col ('Comments')
     artist = Col ('Artist')
+    edit = LinkCol('Edit', 'edit', url_kwargs=dict(id='id'))
+    delet = LinkCol('Delete', 'delet', url_kwargs=dict(id='id'))
 
 class ResultsMov(Table):
 

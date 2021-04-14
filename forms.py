@@ -1,5 +1,5 @@
 # forms.py
-from wtforms import Form, StringField, SelectField
+from wtforms import Form, StringField, SelectField, DateField, IntegerField
 class SearchForm(Form):
     choices = [('artist', 'Artist'),
                ('album', 'Album'),
@@ -14,9 +14,11 @@ class SearchForm(Form):
 class AlbumForm(Form):
     album_or_ep = [('0', 'Album'),
                    ('1', 'Ep')]
-    id = StringField('Id')
+    id = IntegerField('Id')
+    cover = StringField('Cover')
     #artist = StringField('Artist')
     name = StringField('Album Title')
-    releaseDate = StringField('Release Date')
+    releaseDate = DateField('Release Date (YYYY-MM-DD)')
     detailedInfo = StringField('Detailed Information')
     album_or_ep = SelectField('Album or Ep', choices=album_or_ep)
+
