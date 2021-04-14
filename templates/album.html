@@ -7,7 +7,7 @@
    <body>
 
       <h3>
-         <a href = "{{ url_for('albums') }}">Show all Albums info</a>
+         <a href = "{{ url_for('new_album') }}">Add New Album</a>
       </h3>
 
       <hr/>
@@ -15,8 +15,7 @@
          {{ message }}
       {%- endfor %}
 
-      <h3>albums <!--(<a href = "{{ url_for('reg') }}"> Search for albums
-         </a>)--></h3>
+      <h3>Albums </h3>
       <table>
          <thead>
             <tr>
