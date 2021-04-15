@@ -574,7 +574,7 @@ ALTER TABLE `TrackArtist`
 -- Constraints for table `Track`
 --
 ALTER TABLE `Track`
-  ADD CONSTRAINT `track_album_fk` FOREIGN KEY (`album_id`) REFERENCES `Album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `track_album_fk` FOREIGN KEY (`album_id`) REFERENCES `Album` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `track_genre_fk` FOREIGN KEY (`genre_id`) REFERENCES `Genre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
