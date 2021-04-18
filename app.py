@@ -240,7 +240,7 @@ class Movie_Rating(db.Model):
     user = db.relationship('User', back_populates='movie_rating', foreign_keys=[user_id])
     movie = db.relationship('Movie', back_populates='rating')
 
-    def __init__(self, user_id, movie_id, value):
+    def __init__(self,movie_id, user_id, value):
         self.value = value
         self.user_id = user_id
         self.movie_id = movie_id
@@ -448,7 +448,27 @@ def addcom(id):
             return redirect(url_for('movieinfo',id=id))
     return render_template('addcom.html')
 
-
+@app.route('/addrate/<int:id>/', methods=['GET', 'POST'])
+@login_required
+def addrate(id):
+    if request.method == 'POST':
+        if not request.form['content']:
+            flash('Please enter all the fields', 'error')
+        else:
+            rate = int(request.form['content'])
+            if (rate<1 or rate >10):
+                flash('Please check your rate value', 'error')
+                return redirect(url_for('addrate',id=id))
+            user_id = current_user.id
+            if db.session.query(Movie_Rating).filter(Movie_Rating.user_id==user_id,Movie_Rating.movie_id==id).all():
+                flash("you already comment this movie.")
+                return redirect(url_for('movieinfo',id=id))
+            t_mov = Movie_Rating(id, user_id,request.form['content'])
+            db.session.add(t_mov)
+            db.session.commit()
+            flash('Add movie rating ' + request.form['content'] + ' successfully. ')
+            return redirect(url_for('movieinfo',id=id))
+    return render_template('addrate.html',id=id)
 # search part start
 @app.route('/search', methods=['GET', 'POST'])
 def search():
