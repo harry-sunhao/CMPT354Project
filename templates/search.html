@@ -1,17 +1,6 @@
-<doctype html="">
-    <title>Rate Music&Movie</title>
-<h2>Rate Music&Movie</h2>
-
+{% extends 'base.html' %}
+{% block content %}
 <a href="{{ url_for('.new_album') }}"> New Album </a>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flashes">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 {% from "_formhelpers.html" import render_field %}
 <form method="post">
   <p>
@@ -20,4 +9,4 @@
     {{ render_field(form.search) }}
     <input type="submit" value="Search">
 </p></form>
-</doctype>
+{% endblock %}
