@@ -9,7 +9,7 @@
     <br>
     <span>Director: </span><span>
         {% for dirctor in dirctors %}
-            <span>{{ dirctor.name }}</span>
+           <span><a href="/director/{{ dirctor.id }}">{{ dirctor.name }}</a></span>
         {% endfor %}
     </span>
     <br>
