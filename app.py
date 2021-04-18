@@ -105,7 +105,7 @@ def delcom(id):
         db.session.delete(mc)
         db.session.commit()
         flash('Comment deleted.')
-        return render_template('setting.html',comments=Movie_Comment.query.filter_by(user_id=current_user.id).all())
+        return redirect(url_for('settings',comments=Movie_Comment.query.filter_by(user_id=current_user.id).all()))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
