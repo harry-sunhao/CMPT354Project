@@ -209,9 +209,10 @@ class Movie_Comment(db.Model):
     user = db.relationship('User', back_populates='movie_comment', foreign_keys=[user_id])
     movie = db.relationship('Movie', back_populates='comment')
     
-    def __init__(self, comment_id, movie_id, createtime, content):
+    def __init__(self, comment_id, movie_id,user_id, createtime, content):
         self.comment_id = comment_id
         self.movie_id = movie_id
+        self.user_id = user_id
         self.createtime = createtime
         self.content = content
 
@@ -375,6 +376,28 @@ def artists():
 def tracks():
     return render_template('track.html', tracks=Track.query.all())
 
+
+# add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
+# and dont know how to get current time for createtime
+@app.route('/addcom', methods=['GET', 'POST'])
+def addcom(comment_id=None):
+    if request.method == 'POST':
+        if not request.form['comment_id'] or not request.form['movie_id'] or not request.form['content']:
+            flash('Please enter all the fields', 'error')
+        else:
+            print(request.form['comment_id'], request.form['movie_id'], request.form['content'])
+            # temp_comment_id = random.randint(1, 99999999999)
+            createtime = str(datetime.now())
+            user_id = '31703001'
+            moviecomments = Movie_Comment.query.all()
+
+            t_mov = Movie_Comment(request.form['comment_id'], request.form['movie_id'],user_id, createtime,
+                                   request.form['content'])
+            db.session.add(t_mov)
+            db.session.commit()
+            flash('Add movie comment ' + request.form['content'] + ' successfully. ')
+            return redirect(url_for('mov'))
+    return render_template('addcom.html')
 
 
 if __name__ == '__main__':
