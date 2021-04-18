@@ -14,8 +14,8 @@ from forms import SearchForm, AlbumForm
 from tables import Results, ResultsMov, ResultsTrack, ResultsArtist, ResultsActor, ResultsDirector
 
 app = Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/ratemm'
-app.config['SQLALCHEMY_DATABASE_URI'] =  'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/ratemm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'CMPT354PROJECT'
@@ -32,7 +32,6 @@ directs = db.Table('direct',
                    db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
                    db.Column('director_id', db.INTEGER(), db.ForeignKey('director.id'), primary_key=True)
                    )
-
 
 # many-Many relation for produce
 album_artists = db.Table('albumartist',
@@ -63,11 +62,11 @@ class User(db.Model, UserMixin):
     username = db.Column('username', db.VARCHAR(255), unique=True)
     password = db.Column('password', db.VARCHAR(255))
     certification_information = db.Column('certification_information', db.VARCHAR(255))
-    movie_comment = db.relationship('Movie_Comment', back_populates="user")
-    movie_rating = db.relationship('Movie_Rating', back_populates="user")
-    album_comment = db.relationship('Album_Comment', back_populates="user")
-    album_rating = db.relationship('Album_Rating', back_populates="user")
-    track_rating = db.relationship('Track_Rating', back_populates="user")
+    movie_comment = db.relationship('Movie_Comment', back_populates="user", cascade="all, delete-orphan")
+    movie_rating = db.relationship('Movie_Rating', back_populates="user", cascade="all, delete-orphan")
+    album_comment = db.relationship('Album_Comment', back_populates="user", cascade="all, delete-orphan")
+    album_rating = db.relationship('Album_Rating', back_populates="user", cascade="all, delete-orphan")
+    track_rating = db.relationship('Track_Rating', back_populates="user", cascade="all, delete-orphan")
 
     def validate_password(self, password):
         return check_password_hash(self.password, password)
@@ -171,13 +170,28 @@ def delete(user_id):
     return redirect(url_for('index'))
 
 
+def covertEpOrAlbum(lst, index):  # which one is album?
+    for i in range(len(lst)):
+        lst[i] = list(lst[i])
+        if (lst[i][index] == 1):
+            lst[i][index] = "Album"
+        else:
+            lst[i][index] = "EP"
+    return lst
+
+
 @app.route('/')
 def index():
     movieNumber = Movie.query.count()
     albumNumber = Album.query.count()
-    sql_query = "SELECT movie.title,movie.country,movie.release_date FROM movie RIGHT JOIN( SELECT id FROM movie JOIN moviecomment WHERE moviecomment.movie_id = movie.id GROUP BY id ORDER BY count(*) DESC) AS pop ON movie.id = pop.id"
-    moviePopular=list(db.session.execute(sql_query))
-    return render_template('home.html',movie_popular=moviePopular,movie_number=movieNumber,album_number=albumNumber)
+    sql_query = "SELECT movie.id,movie.title,movie.country,movie.release_date FROM movie RIGHT JOIN( SELECT id FROM movie JOIN moviecomment WHERE moviecomment.movie_id = movie.id GROUP BY id ORDER BY count(*) DESC) AS pop ON movie.id = pop.id"
+    moviePopular = list(db.session.execute(sql_query))
+    sql_query = "SELECT data.id,data.name,data.album_or_ep,(genre.name) AS genreName FROM genre RIGHT JOIN(SELECT album.id,album.name,album.album_or_ep, album.genre_id FROM album RIGHT JOIN (SELECT id FROM album JOIN albumcomment WHERE albumcomment.album_id = album.id GROUP BY id ORDER BY count(*) DESC) AS pop ON album.id = pop.id) data ON data.genre_id=genre.id"
+    albumPopular = list(db.session.execute(sql_query))
+    albumPopular = covertEpOrAlbum(albumPopular, 2)
+    print(albumPopular)
+    return render_template('home.html', album_popular=albumPopular, movie_popular=moviePopular,
+                           movie_number=movieNumber, album_number=albumNumber)
 
 
 # user part end
@@ -192,11 +206,11 @@ class Movie(db.Model):
     detailed_information = db.Column('detailed_information', db.TEXT())
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('genre.id'))
     acts = db.relationship('Actor', secondary=acts, lazy='subquery',
-                           backref=db.backref('Movie', lazy=True))
+                           backref=db.backref('Movie', lazy=True), cascade="all, delete")
     directs = db.relationship('Director', secondary=directs, lazy='subquery',
-                              backref=db.backref('Movie', lazy=True))
-    comment = db.relationship('Movie_Comment', back_populates='movie')
-    rating = db.relationship('Movie_Rating', back_populates='movie')
+                              backref=db.backref('Movie', lazy=True), cascade="all, delete")
+    comment = db.relationship('Movie_Comment', back_populates='movie', cascade="all, delete-orphan")
+    rating = db.relationship('Movie_Rating', back_populates='movie', cascade="all, delete-orphan")
 
 
 class Movie_Comment(db.Model):
@@ -208,8 +222,8 @@ class Movie_Comment(db.Model):
     content = db.Column('content', db.TEXT())
     user = db.relationship('User', back_populates='movie_comment', foreign_keys=[user_id])
     movie = db.relationship('Movie', back_populates='comment')
-    
-    def __init__(self, comment_id, movie_id,user_id, createtime, content):
+
+    def __init__(self, comment_id, movie_id, user_id, createtime, content):
         self.comment_id = comment_id
         self.movie_id = movie_id
         self.user_id = user_id
@@ -219,18 +233,19 @@ class Movie_Comment(db.Model):
 
 class Movie_Rating(db.Model):
     __tablename__ = 'movierating'
-    rate_id = db.Column('rate_id', db.INTEGER(), primary_key=True, autoincrement=True,nullable=False)
+    rate_id = db.Column('rate_id', db.INTEGER(), primary_key=True, autoincrement=True, nullable=False)
     movie_id = db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'))
     user_id = db.Column('user_id', db.INTEGER(), db.ForeignKey('user.id'))
-    createtime = db.Column(db.DATETIME(),default=datetime.now())
+    createtime = db.Column(db.DATETIME(), default=datetime.now())
     value = db.Column('value', db.FLOAT())
     user = db.relationship('User', back_populates='movie_rating', foreign_keys=[user_id])
     movie = db.relationship('Movie', back_populates='rating')
 
-    def __init__(self, user_id,movie_id, value):
+    def __init__(self, user_id, movie_id, value):
         self.value = value
-        self.user_id=user_id
-        self.movie_id=movie_id
+        self.user_id = user_id
+        self.movie_id = movie_id
+
 
 class Album(db.Model):
     __tablename__ = "album"
@@ -242,11 +257,12 @@ class Album(db.Model):
     detailedInfo = db.Column('detailedInfo', db.TEXT())
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('genre.id'))
     album_artists = db.relationship('Artist', secondary=album_artists, lazy='subquery',
-                                    backref=db.backref('Album', lazy=True))
-    album_comment = db.relationship('Album_Comment', back_populates='album')
-    album_rating = db.relationship('Album_Rating', back_populates='album')
-    tracks = db.relationship('Track', backref='Album', lazy=True)
-    
+                                    backref=db.backref('Album', lazy=True), cascade="all, delete")
+    album_comment = db.relationship('Album_Comment', back_populates='album', cascade="all, delete-orphan")
+    album_rating = db.relationship('Album_Rating', back_populates='album', cascade="all, delete-orphan")
+    tracks = db.relationship('Track', backref='Album', lazy=True, cascade="all, delete-orphan")
+
+
 class Album_Comment(db.Model):
     __tablename__ = 'albumcomment'
     comment_id = db.Column('comment_id', db.INTEGER(), primary_key=True, autoincrement=True)
@@ -272,11 +288,12 @@ class Album_Rating(db.Model):
     value = db.Column('value', db.FLOAT())
     user = db.relationship('User', back_populates='album_rating', foreign_keys=user_id)
     album = db.relationship('Album', back_populates='album_rating')
-    
+
     def __init__(self, rate_id, createtime, value):
         self.rate_id = rate_id
         self.createtime = createtime
         self.value = value
+
 
 class Actor(db.Model):
     __tablename__ = 'actor'
@@ -285,7 +302,7 @@ class Actor(db.Model):
     country = db.Column('country', db.VARCHAR(255))
     date_of_birth = db.Column('date_of_birth', db.VARCHAR(255))
     acts = db.relationship('Movie', secondary=acts, lazy='subquery',
-                           backref=db.backref('Actor', lazy=True))
+                          backref=db.backref('Actor', lazy=True), cascade="all, delete")
 
 
 class Director(db.Model):
@@ -295,17 +312,19 @@ class Director(db.Model):
     country = db.Column('country', db.VARCHAR(255))
     date_of_birth = db.Column('date_of_birth', db.VARCHAR(255))
     directs = db.relationship('Movie', secondary=directs, lazy='subquery',
-                              backref=db.backref('Director', lazy=True))
+                              backref=db.backref('Director', lazy=True), cascade="all, delete")
+
 
 class Genre(db.Model):
     __tablename__ = 'genre'
     id = db.Column('id', db.INTEGER(), primary_key=True)
     name = db.Column('name', db.VARCHAR(255))
     album_track_artist_movie = db.Column('album_track_artist_movie', db.INTEGER())
-    artists = db.relationship('Artist', backref='Genre', lazy=True)
-    albums = db.relationship('Album', backref='Genre', lazy=True)
-    tracks = db.relationship('Track', backref='Genre', lazy=True)
-    movies = db.relationship('Movie', backref='Genre', lazy=True)
+    artists = db.relationship('Artist', backref='Genre', lazy=True, cascade="all, delete-orphan")
+    albums = db.relationship('Album', backref='Genre', lazy=True, cascade="all, delete-orphan")
+    tracks = db.relationship('Track', backref='Genre', lazy=True, cascade="all, delete-orphan")
+    movies = db.relationship('Movie', backref='Genre', lazy=True, cascade="all, delete-orphan")
+
 
 class Artist(db.Model):
     __tablename__ = 'artist'
@@ -317,9 +336,10 @@ class Artist(db.Model):
     country = db.Column('country', db.VARCHAR(255))
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('genre.id'))
     album_artists = db.relationship('Album', secondary=album_artists, lazy='subquery',
-                                    backref=db.backref('Artist', lazy=True))
+                                    backref=db.backref('Artist', lazy=True), cascade="all, delete")
     track_artists = db.relationship('Track', secondary=track_artists, lazy='subquery',
-                                    backref=db.backref('Artist', lazy=True))
+                                    backref=db.backref('Artist', lazy=True), cascade="all, delete")
+
 
 class Track_Rating(db.Model):
     __tablename__ = 'trackrating'
@@ -328,13 +348,15 @@ class Track_Rating(db.Model):
     user_id = db.Column('user_id', db.INTEGER(), db.ForeignKey('user.id'))
     createtime = db.Column(db.DATETIME())
     value = db.Column('value', db.FLOAT())
-    user = db.relationship('User', back_populates='track_rating', foreign_keys=user_id)
-    #track = db.relationship('Track', back_populates='ratings')
+    user = db.relationship('User', back_populates='track_rating', foreign_keys=user_id, cascade="all, delete")
+
+    # track = db.relationship('Track', back_populates='ratings')
 
     def __init__(self, rate_id, createtime, value):
         self.rate_id = rate_id
         self.createtime = createtime
         self.value = value
+
 
 class Track(db.Model):
     __tablename__ = 'track'
@@ -343,8 +365,9 @@ class Track(db.Model):
     album_id = db.Column('album_id', db.INTEGER(), db.ForeignKey('album.id'), primary_key=True)
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_artists = db.relationship('Artist', secondary=track_artists, lazy='subquery',
-                                    backref=db.backref('Track', lazy=True))
-    #ratings = db.relationship('Track_Rating', back_populates='tracks')
+                                    backref=db.backref('Track', lazy=True), cascade="all, delete")
+    # ratings = db.relationship('Track_Rating', back_populates='tracks')
+
 
 @app.route('/movie')
 def mov():
@@ -352,6 +375,22 @@ def mov():
         for j in i.rating:
             print(j.value)
     return render_template('movie.html', posts=Movie.query.all())
+
+
+@app.route('/movieinfo/<int:id>/')
+def movieinfo(id):
+    movie = Movie.query.get_or_404(id)
+    dirctors = movie.directs
+    actors = movie.acts
+    genre =Genre.query.get_or_404(movie.genre_id)
+    comments =list(db.session.execute("SELECT DATE_FORMAT(moviecomment.createtime,'%Y-%m-%d')AS createtime,moviecomment.content,user.username FROM moviecomment JOIN user ON moviecomment.user_id = user.id AND moviecomment.movie_id = "+str(id)))
+    rating = list(movie.rating)
+    count = len(rating)
+    sum = 0
+    for rate in rating:
+        sum += rate.value
+    rating = sum / count
+    return render_template('movieinfo.html', movie=movie, dirctors=dirctors,actors=actors,genre=genre,comments=comments,rating=rating )
 
 
 @app.route('/actorinfo')
@@ -364,10 +403,10 @@ def albums():
     return render_template('album.html', albums=Album.query.all())
 
 
-
 @app.route('/artistinfo')
 def artists():
     return render_template('artist.html', artists=Artist.query.all())
+
 
 @app.route('/track')
 def tracks():
@@ -388,13 +427,15 @@ def addcom(comment_id=None):
             user_id = '31703001'
             moviecomments = Movie_Comment.query.all()
 
-            t_mov = Movie_Comment(request.form['comment_id'], request.form['movie_id'],user_id, createtime,
-                                   request.form['content'])
+            t_mov = Movie_Comment(request.form['comment_id'], request.form['movie_id'], user_id, createtime,
+                                  request.form['content'])
             db.session.add(t_mov)
             db.session.commit()
             flash('Add movie comment ' + request.form['content'] + ' successfully. ')
             return redirect(url_for('mov'))
     return render_template('addcom.html')
+
+
 # search part start
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -402,6 +443,7 @@ def search():
     if request.method == 'POST':
         return search_results(search)
     return render_template('search.html', form=search)
+
 
 @app.route('/results')
 def search_results(search):
@@ -453,9 +495,10 @@ def search_results(search):
         table.border = True
         return render_template('results.html', table=table)
 
+
 @app.route('/item/<int:id>', methods=['GET', 'POST'])
 def edit(id):
-    qry = Album.query.filter(Album.id==id)
+    qry = Album.query.filter(Album.id == id)
     al = qry.first()
     if Album:
         form = AlbumForm(formdata=request.form, obj=al)
@@ -467,7 +510,8 @@ def edit(id):
         return render_template('edit_Album.html', form=form)
     else:
         return 'Error loading #{id}'.format(id=id)
-    #</int:id>
+    # </int:id>
+
 
 @app.route('/new_album', methods=['GET', 'POST'])
 def new_album():
@@ -480,6 +524,7 @@ def new_album():
         flash('Album created successfully!')
         return redirect('/albuminfo')
     return render_template('new_album.html', form=form)
+
 
 def save_changes(al, form, new=False):
     """
@@ -494,7 +539,7 @@ def save_changes(al, form, new=False):
     al.detailedInfo = form.detailedInfo.data
     al.album_or_ep = form.album_or_ep.data
     genre_id = form.genre_id.data
-    album_artists = form.album_artists.data ###NEED TO FIX RELATIONS!!!
+    album_artists = form.album_artists.data  ###NEED TO FIX RELATIONS!!!
     album_comment = form.album_comment.data
     album_rating = form.album_rating.data
     tracks = form.tracks.data
@@ -504,13 +549,14 @@ def save_changes(al, form, new=False):
     # commit the data to the database
     db.session.commit()
 
+
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delet(id):
     """
     Delete the item in the database that matches the specified
     id in the URL
     """
-    qry = Album.query.filter(Album.id==id)
+    qry = Album.query.filter(Album.id == id)
     al = qry.first()
     if al:
         form = AlbumForm(formdata=request.form, obj=al)
@@ -523,6 +569,8 @@ def delet(id):
         return render_template('delete_album.html', form=form)
     else:
         return 'Error deleting #{id}'.format(id=id)
+
+
 # search part end
 
 if __name__ == '__main__':
