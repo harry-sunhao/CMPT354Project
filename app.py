@@ -13,7 +13,7 @@ from db_setup import db_session
 from forms import SearchForm
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/reratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
 app.secret_key = 'CMPT354PROJECT'
@@ -31,42 +31,17 @@ directs = db.Table('direct',
                    db.Column('director_id', db.INTEGER(), db.ForeignKey('Director.id'), primary_key=True)
                    )
 
-movie_comments = db.Table('movie_comments',
-                          db.Column('movie_id', db.INTEGER(), db.ForeignKey('Movie.id'), primary_key=True),
-                          db.Column('comment_id', db.INTEGER(), db.ForeignKey('MovieComment.comment_id'), primary_key=True)
-                          )
-
-movie_ratings = db.Table('movie_ratings',
-                         db.Column('movie_id', db.INTEGER(), db.ForeignKey('Movie.id'), primary_key=True),
-                         db.Column('rate_id', db.INTEGER(), db.ForeignKey('MovieRating.rate_id'), primary_key=True)
-                         )
 
 # many-Many relation for produce
-album_artists = db.Table('albumartists',
+album_artists = db.Table('albumartist',
                          db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True),
                          db.Column('artist_id', db.INTEGER(), db.ForeignKey('Artist.id'), primary_key=True)
-                         )
-
-album_comments = db.Table('album_comments',
-                          db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True),
-                          db.Column('comment_id', db.INTEGER(), db.ForeignKey('AlbumComment.comment_id'), primary_key=True)
-                          )
-
-album_ratings = db.Table('album_ratings',
-                         db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True),
-                         db.Column('rate_id', db.INTEGER(), db.ForeignKey('AlbumRating.rate_id'), primary_key=True),
                          )
 
 track_artists = db.Table('trackartist',
                          db.Column('track_id', db.INTEGER(), db.ForeignKey('Track.id'), primary_key=True),
                          db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True),
                          db.Column('artist_id', db.INTEGER(), db.ForeignKey('Artist.id'), primary_key=True)
-                         )
-
-track_ratings = db.Table('track_ratings',
-                         db.Column('track_id', db.INTEGER(), db.ForeignKey('Track.id'), primary_key=True),
-                         db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True),
-                         db.Column('user_id', db.INTEGER(), db.ForeignKey('User.id'), primary_key=True)
                          )
 
 # User part start
@@ -220,8 +195,8 @@ class Movie(db.Model):
                            backref=db.backref('Movie', lazy=True))
     directs = db.relationship('Director', secondary=directs, lazy='subquery',
                               backref=db.backref('Movie', lazy=True))
-    comment = db.relationship('Movie_Comment', secondary=movie_comments,back_populates='movie')
-    rating = db.relationship('Movie_Rating', secondary=movie_ratings,back_populates='movie')
+    comment = db.relationship('Movie_Comment', back_populates='movie')
+    rating = db.relationship('Movie_Rating', back_populates='movie')
 
 
 class Movie_Comment(db.Model):
@@ -232,8 +207,8 @@ class Movie_Comment(db.Model):
     createtime = db.Column('createtime', db.DATETIME())
     content = db.Column('content', db.TEXT())
     user = db.relationship('User', back_populates='movie_comment', foreign_keys=[user_id])
-    movie = db.relationship('Movie', secondary=movie_comments, back_populates='comment')
-
+    movie = db.relationship('Movie', back_populates='comment')
+    
     def __init__(self, comment_id, movie_id, createtime, content):
         self.comment_id = comment_id
         self.movie_id = movie_id
@@ -249,7 +224,7 @@ class Movie_Rating(db.Model):
     createtime = db.Column(db.DATETIME())
     value = db.Column('value', db.FLOAT())
     user = db.relationship('User', back_populates='movie_rating', foreign_keys=[user_id])
-    movie = db.relationship('Movie', secondary=movie_ratings, back_populates='rating')
+    movie = db.relationship('Movie', back_populates='rating')
 
     def __init__(self, rate_id, createtime, value):
         self.rate_id = rate_id
@@ -268,13 +243,10 @@ class Album(db.Model):
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('Genre.id'))
     album_artists = db.relationship('Artist', secondary=album_artists, lazy='subquery',
                                     backref=db.backref('Album', lazy=True))
-    album_comment = db.relationship('Album_Comment', secondary=album_comments, lazy='subquery',
-                                    backref=db.backref('Album', lazy=True))
-    album_rating = db.relationship('Album_Rating', secondary=album_ratings, lazy='subquery',
-                                   backref=db.backref('Album', lazy=True))
+    album_comment = db.relationship('Album_Comment', back_populates='album')
+    album_rating = db.relationship('Album_Rating', back_populates='album')
     tracks = db.relationship('Track', backref='Album', lazy=True)
-
-
+    
 class Album_Comment(db.Model):
     __tablename__ = 'AlbumComment'
     comment_id = db.Column('comment_id', db.INTEGER(), primary_key=True, autoincrement=True)
@@ -283,6 +255,7 @@ class Album_Comment(db.Model):
     createtime = db.Column('createtime', db.DATETIME())
     content = db.Column('content', db.TEXT())
     user = db.relationship('User', back_populates='album_comment', foreign_keys=user_id)
+    album = db.relationship('Album', back_populates='album_comment')
 
     def __init__(self, comment_id, createtime, content):
         self.comment_id = comment_id
@@ -298,27 +271,12 @@ class Album_Rating(db.Model):
     createtime = db.Column(db.DATETIME())
     value = db.Column('value', db.FLOAT())
     user = db.relationship('User', back_populates='album_rating', foreign_keys=user_id)
-
+    album = db.relationship('Album', back_populates='album_rating')
+    
     def __init__(self, rate_id, createtime, value):
         self.rate_id = rate_id
         self.createtime = createtime
         self.value = value
-
-
-class Track_Rating(db.Model):
-    __tablename__ = 'TrackRating'
-    rate_id = db.Column('rate_id', db.INTEGER(), primary_key=True)
-    album_id = db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True)
-    user_id = db.Column('user_id', db.INTEGER(), db.ForeignKey('User.id'), primary_key=True)
-    createtime = db.Column(db.DATETIME())
-    value = db.Column('value', db.FLOAT())
-    user = db.relationship('User', back_populates='track_rating', foreign_keys=user_id)
-
-    def __init__(self, rate_id, createtime, value):
-        self.rate_id = rate_id
-        self.createtime = createtime
-        self.value = value
-
 
 class Actor(db.Model):
     __tablename__ = 'Actor'
@@ -339,6 +297,15 @@ class Director(db.Model):
     directs = db.relationship('Movie', secondary=directs, lazy='subquery',
                               backref=db.backref('Director', lazy=True))
 
+class Genre(db.Model):
+    __tablename__ = 'Genre'
+    id = db.Column('id', db.INTEGER(), primary_key=True)
+    name = db.Column('name', db.VARCHAR(255))
+    album_track_artist_movie = db.Column('album_track_artist_movie', db.INTEGER())
+    artists = db.relationship('Artist', backref='Genre', lazy=True)
+    albums = db.relationship('Album', backref='Genre', lazy=True)
+    tracks = db.relationship('Track', backref='Genre', lazy=True)
+    movies = db.relationship('Movie', backref='Genre', lazy=True)
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -351,18 +318,23 @@ class Artist(db.Model):
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('Genre.id'))
     album_artists = db.relationship('Album', secondary=album_artists, lazy='subquery',
                                     backref=db.backref('Artist', lazy=True))
+    track_artists = db.relationship('Track', secondary=track_artists, lazy='subquery',
+                                    backref=db.backref('Artist', lazy=True))
 
+class Track_Rating(db.Model):
+    __tablename__ = 'TrackRating'
+    rate_id = db.Column('rate_id', db.INTEGER(), primary_key=True)
+    album_id = db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'))
+    user_id = db.Column('user_id', db.INTEGER(), db.ForeignKey('User.id'))
+    createtime = db.Column(db.DATETIME())
+    value = db.Column('value', db.FLOAT())
+    user = db.relationship('User', back_populates='track_rating', foreign_keys=user_id)
+    #track = db.relationship('Track', back_populates='ratings')
 
-class Genre(db.Model):
-    __tablename__ = 'Genre'
-    id = db.Column('id', db.INTEGER(), primary_key=True)
-    name = db.Column('name', db.VARCHAR(255))
-    album_track_artist_movie = db.Column('album_track_artist_movie', db.INTEGER())
-    artists = db.relationship('Artist', backref='Genre', lazy=True)
-    albums = db.relationship('Album', backref='Genre', lazy=True)
-    tracks = db.relationship('Track', backref='Genre', lazy=True)
-    movies = db.relationship('Movie', backref='Genre', lazy=True)
-
+    def __init__(self, rate_id, createtime, value):
+        self.rate_id = rate_id
+        self.createtime = createtime
+        self.value = value
 
 class Track(db.Model):
     __tablename__ = 'Track'
@@ -370,7 +342,9 @@ class Track(db.Model):
     name = db.Column('name', db.VARCHAR(255))
     album_id = db.Column('album_id', db.INTEGER(), db.ForeignKey('Album.id'), primary_key=True)
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('Genre.id'))
-
+    track_artists = db.relationship('Artist', secondary=track_artists, lazy='subquery',
+                                    backref=db.backref('Track', lazy=True))
+    #ratings = db.relationship('Track_Rating', back_populates='tracks')
 
 @app.route('/movie')
 def mov():
@@ -397,27 +371,10 @@ def albumcomments():
 def artists():
     return render_template('artist.html', artists=Artist.query.all())
 
+@app.route('/track')
+def tracks():
+    return render_template('track.html', tracks=Track.query.all())
 
-# add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
-# and dont know how to get current time for createtime
-@app.route('/addcom', methods=['GET', 'POST'])
-def addcom(comment_id=None):
-    if request.method == 'POST':
-        if not request.form['comment_id'] or not request.form['movie_id'] or not request.form['content']:
-            flash('Please enter all the fields', 'error')
-        else:
-            print(request.form['comment_id'], request.form['movie_id'], request.form['content'])
-            # temp_comment_id = random.randint(1, 99999999999)
-            createtime = str(datetime.now())
-            moviecomments = movie_comments.query.all()
-
-            t_mov = movie_comments(request.form['comment_id'], request.form['movie_id'], createtime,
-                                   request.form['content'])
-            db.session.add(t_mov)
-            db.session.commit()
-            flash('Add movie comment ' + request.form['content'] + ' successfully. ')
-            return redirect(url_for('mov'))
-    return render_template('addcom.html')
 
 
 if __name__ == '__main__':
