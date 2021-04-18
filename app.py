@@ -94,8 +94,18 @@ def settings():
                 db.session.commit()
                 flash('Settings updated.')
                 return redirect(url_for('index'))
-    return render_template('setting.html')
+    comments = Movie_Comment.query.filter_by(user_id=current_user.id).all()
+    print(current_user.id)
+    return render_template('setting.html',comments=comments)
 
+@app.route('/delcom/<int:id>',methods=['GET'])
+def delcom(id):
+        mc = Movie_Comment.query.get_or_404(id)
+        print(mc)
+        db.session.delete(mc)
+        db.session.commit()
+        flash('Comment deleted.')
+        return render_template('setting.html',comments=Movie_Comment.query.filter_by(user_id=current_user.id).all())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -370,10 +380,8 @@ class Track(db.Model):
 
 @app.route('/movie')
 def mov():
-    for i in Movie.query.all():
-        for j in i.rating:
-            print(j.value)
-    return render_template('movie.html', posts=Movie.query.all())
+
+    return render_template('movie.html', movies=Movie.query.all())
 
 
 @app.route('/movieinfo/<int:id>/',methods=['GET', 'POST'])
@@ -388,7 +396,10 @@ def movieinfo(id):
     sum = 0
     for rate in rating:
         sum += rate.value
-    rating = sum / count
+    if count == 0:
+        rating = 0
+    else:
+        reating = sum / count
 
     if request.method == 'POST':
         commentcontent = request.form['comment']
@@ -447,6 +458,7 @@ def addcom(id):
             flash('Add movie comment ' + request.form['content'] + ' successfully. ')
             return redirect(url_for('movieinfo',id=id))
     return render_template('addcom.html')
+
 
 @app.route('/addrate/<int:id>/', methods=['GET', 'POST'])
 @login_required

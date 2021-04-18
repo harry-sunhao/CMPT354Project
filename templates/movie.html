@@ -1,56 +1,21 @@
-<!DOCTYPE html>
-<html lang = "en">
-<head>
-    <meta charset="UTF-8">
-    <title>Rate Music&Movie---All Albums Information</title>
-</head>
-   <body>
-
-      <h3>
-         <a href = "{{ url_for('mov') }}">Add Movie Comment</a>
-      </h3>
-
-      <hr/>
-      {%- for message in get_flashed_messages() %}
-         {{ message }}
-      {%- endfor %}
-
-      <h3>Movies </h3>
+{% extends 'base.html' %}
+{% block content %}
       <table>
          <thead>
             <tr>
-               <th>ID</th>
                <th>Title</th>
+               <th>Country</th>
                <th>Release Date</th>
-                <th>Country</th>
-               <th>Detailed Information</th>
-               <th>Genre</th>
-                <th>Actors</th>
-                <th>Directors</th>
-                <th>Movie Comments</th>
-                <th>Movie Ratings</th>
-               
             </tr>
          </thead>
-
          <tbody>
-            {% for post in posts %}
+            {% for movie in movies %}
                <tr>
-                  <td>{{ post.id }}</td>
-                  <td>{{ post.title }}</td>
-                  <td>{{ post.release_date }}</td>
-                  <td>{{ post.country }}</td>
-                  <td>{{ post.detailed_information }}</td>
-                  <td>{{ post.genre_id }}</td>
-                  <td>{{ post.acts }}</td>
-                  <td>{{ post.directs }}</td>
-                  <td>{{ post.comment }}</td>
-                  <td>{{ post.rating  }}</td>
-                  
+                   <td><a href="/movieinfo/{{ movie.id }}">{{ movie.title }}</a></td>
+                <td>{{ movie.country }}</td>
+                <td>{{ movie.release_date }}</td>
                </tr>
             {% endfor %}
          </tbody>
       </table>
-
-   </body>
-</html>
+{% endblock %}
