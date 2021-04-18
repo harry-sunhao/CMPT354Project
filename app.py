@@ -399,7 +399,7 @@ def movieinfo(id):
     if count == 0:
         rating = 0
     else:
-        reating = sum / count
+        rating = sum / count
 
     if request.method == 'POST':
         commentcontent = request.form['comment']
