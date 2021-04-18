@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
-    <h2>{{ actor.name }} information</h2>
+    <h2>{{ director.name }} information</h2>
     <div>
-    <span>Country: </span><span>{{ actor.country }}</span>
+    <span>Country: </span><span>{{ director.country }}</span>
     <br>
     <br>
-    <span>Date of birth: </span><span>{{ actor.date_of_birth }}</span>
+    <span>Date of birth: </span><span>{{ director.date_of_birth }}</span>
     <br>
     <br>
-    <h3>{{ actor.name }} movies</h3>
+    <h3>{{ director.name }} movies</h3>
     {% for movie in movies %}
        <span><a href="/movieinfo/{{ movie.id }}">{{ movie.title }}</a></span>
        <br>

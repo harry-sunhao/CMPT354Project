@@ -223,8 +223,7 @@ class Movie_Comment(db.Model):
     user = db.relationship('User', back_populates='movie_comment', foreign_keys=[user_id])
     movie = db.relationship('Movie', back_populates='comment')
 
-    def __init__(self, comment_id, movie_id, user_id, createtime, content):
-        self.comment_id = comment_id
+    def __init__(self, movie_id, user_id, createtime, content):
         self.movie_id = movie_id
         self.user_id = user_id
         self.createtime = createtime
@@ -377,7 +376,7 @@ def mov():
     return render_template('movie.html', posts=Movie.query.all())
 
 
-@app.route('/movieinfo/<int:id>/')
+@app.route('/movieinfo/<int:id>/',methods=['GET', 'POST'])
 def movieinfo(id):
     movie = Movie.query.get_or_404(id)
     dirctors = movie.directs
@@ -390,14 +389,27 @@ def movieinfo(id):
     for rate in rating:
         sum += rate.value
     rating = sum / count
+
+    if request.method == 'POST':
+        commentcontent = request.form['comment']
+        print(commentcontent)
+        return redirect('movieinfo.html', movie=movie, dirctors=dirctors, actors=actors, genre=genre,
+                               comments=comments, rating=rating)
+
     return render_template('movieinfo.html', movie=movie, dirctors=dirctors,actors=actors,genre=genre,comments=comments,rating=rating )
 
 
-@app.route('/actorinfo')
-def actors():
-    return render_template('actors.html', actors=Actor.query.all())
+@app.route('/actorinfo/<int:id>/')
+def actors(id):
+    actor = Actor.query.get_or_404(id)
+    movies = actor.acts
+    return render_template('actors.html', actor=actor,movies=movies)
 
-
+@app.route('/director/<int:id>/')
+def director(id):
+    director = Director.query.get_or_404(id)
+    movies = director.directs
+    return render_template('director.html',director=director,movies=movies)
 @app.route('/albuminfo')
 def albums():
     return render_template('album.html', albums=Album.query.all())
@@ -415,24 +427,24 @@ def tracks():
 
 # add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
 # and dont know how to get current time for createtime
-@app.route('/addcom', methods=['GET', 'POST'])
-def addcom(comment_id=None):
+@login_required
+@app.route('/addcom/<int:id>/', methods=['GET', 'POST'])
+def addcom(id):
     if request.method == 'POST':
-        if not request.form['comment_id'] or not request.form['movie_id'] or not request.form['content']:
+        if not request.form['content']:
             flash('Please enter all the fields', 'error')
         else:
-            print(request.form['comment_id'], request.form['movie_id'], request.form['content'])
-            # temp_comment_id = random.randint(1, 99999999999)
             createtime = str(datetime.now())
-            user_id = '31703001'
-            moviecomments = Movie_Comment.query.all()
-
-            t_mov = Movie_Comment(request.form['comment_id'], request.form['movie_id'], user_id, createtime,
+            user_id = current_user.id
+            if db.session.query(Movie_Comment).filter(Movie_Comment.user_id==user_id,Movie_Comment.movie_id==id).all():
+                flash("you already comment this movie.")
+                return redirect(url_for('movieinfo',id=id))
+            t_mov = Movie_Comment(id, user_id, createtime,
                                   request.form['content'])
             db.session.add(t_mov)
             db.session.commit()
             flash('Add movie comment ' + request.form['content'] + ' successfully. ')
-            return redirect(url_for('mov'))
+            return redirect(url_for('movieinfo',id=id))
     return render_template('addcom.html')
 
 

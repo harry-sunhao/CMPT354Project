@@ -16,7 +16,7 @@
     <br>
     <span>Actor: </span><span>
         {% for actor in actors %}
-            <span>{{ actor.name }}</span>
+            <span><a href="/actorinfo/{{ actor.id }}">{{ actor.name }}</a></span>
         {% endfor %}
     </span>
     <br>
@@ -41,4 +41,7 @@
         <br>
         <br>
     {% endfor %}
+    {% if current_user.is_authenticated %}
+        <a href = "/addcom/{{ movie.id }}/">Add Movie Comment</a>
+    {% endif %}
 {% endblock %}
