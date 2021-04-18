@@ -1,5 +1,5 @@
 # forms.py
-from wtforms import Form, StringField, SelectField, DateField, IntegerField
+from wtforms import Form, StringField, SelectField, DateField, IntegerField, TextAreaField
 class SearchForm(Form):
     choices = [('Artist', 'Artist'),
                ('Album', 'Album'),
@@ -34,9 +34,23 @@ class AlbumForm(Form):
     name = StringField('Name')
     album_or_ep = SelectField('Album or Ep', choices=album_or_ep)
     releaseDate = DateField('Release Date (FORMAT: YYYY-MM-DD)')
-    detailedInfo = StringField('Detailed Information')
+    detailedInfo = TextAreaField('Detailed Information')
     genre_id = SelectField('Genre', choices=genre_id)
     album_artists = StringField('Artists')
     album_comment = StringField('Comments')
     album_rating = SelectField('Rating', choices=album_rating)
     tracks = StringField('Tracks') #needs to make sure relation works
+
+class MovieForm(Form):
+    genre_id = [('1', 'Genre 1'),
+                ('2', 'Genre 2'),
+                ('3', 'Genre 3'),
+                ('4', 'Genre 4'),
+                ('5', 'Genre 5')]
+    id = IntegerField('Id')
+    title = StringField('Title')
+    release_date = StringField('Release Date (FORMAT: YYYY-MM-DD)')
+    country = StringField('Country')
+    detailed_information = TextAreaField('Detailed Information')
+    genre_id = SelectField('Genre', choices=genre_id)
+    

@@ -1,0 +1,16 @@
+<doctype html="">
+    <title>Rate My Music & Movie</title>
+    <h2>New Movie</h2>
+    {% from "_formhelpers.html" import render_field %}
+    <form method="post">
+        <dl>
+            {{ render_field(form.id) }}
+            {{ render_field(form.title) }}
+            {{ render_field(form.release_date) }}
+            {{ render_field(form.country) }}
+            {{ render_field(form.detailed_information) }}
+            {{ render_field(form.genre_id) }}
+        </dl>
+        <p><input type="submit" value="Submit">
+    </p></form>
+    </doctype>

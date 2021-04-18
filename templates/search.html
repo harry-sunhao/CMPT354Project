@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <a href="{{ url_for('.new_album') }}"> New Album </a>
+<a href="{{ url_for('.new_movie') }}"> New Movie </a>
 {% from "_formhelpers.html" import render_field %}
 <form method="post">
   <p>

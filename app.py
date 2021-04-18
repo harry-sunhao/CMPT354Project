@@ -10,7 +10,7 @@ from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from db_setup import db_session
-from forms import SearchForm, AlbumForm
+from forms import SearchForm, AlbumForm, MovieForm
 from tables import Results, ResultsMov, ResultsTrack, ResultsArtist, ResultsActor, ResultsDirector
 
 app = Flask(__name__)
@@ -392,7 +392,7 @@ def addcom(comment_id=None):
                                    request.form['content'])
             db.session.add(t_mov)
             db.session.commit()
-            flash('Add movie comment ' + request.form['content'] + ' successfully. ')
+            flash('Add movie comment ' + "\"" + request.form['content'] + "\"" + ' successfully. ')
             return redirect(url_for('mov'))
     return render_template('addcom.html')
 # search part start
@@ -461,7 +461,7 @@ def edit(id):
         form = AlbumForm(formdata=request.form, obj=al)
         if request.method == 'POST' and form.validate():
             # save edits
-            save_changes(al, form)
+            album_save_changes(al, form)
             flash('Album updated successfully!')
             return redirect('/Albuminfo')
         return render_template('edit_Album.html', form=form)
@@ -476,12 +476,24 @@ def new_album():
         # save the album
         al = Album()
 
-        save_changes(al, form, new=True)
+        album_save_changes(al, form, new=True)
         flash('Album created successfully!')
         return redirect('/albuminfo')
     return render_template('new_album.html', form=form)
 
-def save_changes(al, form, new=False):
+@app.route('/new_movie', methods=['GET', 'POST'])
+def new_movie():
+    form = MovieForm(request.form)
+    if request.method == 'POST' and form.validate():
+        # save the album
+        movie_created = Movie()
+
+        movie_save_changes(movie_created, form, new=True)
+        flash('Movie created successfully!')
+        return redirect('/movie')
+    return render_template('new_movie.html', form=form)
+
+def album_save_changes(al, form, new=False):
     """
     Save the changes to the database
     """
@@ -501,6 +513,24 @@ def save_changes(al, form, new=False):
     if new:
         # Add the new album to the database
         db.session.add(al)
+    # commit the data to the database
+    db.session.commit()
+
+def movie_save_changes(mov, form, new=False):
+    """
+    Save the changes to the database
+    """
+    # Get data from form and assign it to the correct attributes
+    # of the SQLAlchemy table object
+    mov.id = form.id.data
+    mov.title = form.title.data
+    mov.release_date = form.release_date.data
+    mov.country = form.country.data
+    mov.detailed_information = form.detailed_information.data
+    mov.genre_id = form.genre_id.data
+    if new:
+        # Add the new album to the database
+        db.session.add(mov)
     # commit the data to the database
     db.session.commit()
 
