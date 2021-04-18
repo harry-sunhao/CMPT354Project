@@ -1,12 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>Settings</h3>
+<h3>Profile</h3>
 <form method="post">
-    Your Name <input type="text" name="name" autocomplete="off" required value="{{ current_user.name }}">
+    Nickname: <input type="text" name="name" autocomplete="off" required value="{{ current_user.username }}">
     <input class="btn" type="submit" name="submit" value="Save">
 </form>
 <p></p>
-<input class="btn" type="button" value="Delete this account" href="{{ url_for('delete', user_id=current_user.id) }}"onclick="return confirm('Are you sure?')"></input>
-
+<a class="btn" type="button" href="{{ url_for('delete', user_id=current_user.id) }}"onclick="return confirm('Are you sure?')">Delete this account </a>
+<h3>All comments</h3>
+    {% for comment in comments %}
+        <span>{{ comment.username }}   {{ comment.createtime }}<a class="btn" type="button" value="Delete" href="{{ url_for('delcom', id=comment.comment_id) }}"onclick="return confirm('Are you sure{{ comment.comment_id }}?')">Delete </a>
+</span>
+        <br>
+        <span>{{ comment.content }}</span>
+        <br>
+        <br>
+    {% endfor %}
 {% endblock %}

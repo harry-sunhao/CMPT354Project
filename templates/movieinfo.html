@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h2>{{ movie.title }}</h2>
+    <div>
+    <br>
+    <br>
+    <span>Rate: </span><span>{{ rating }}</span><a href = "/addrate/{{ movie.id }}/">Rate this movie</a>
+    <br>
+    <br>
+    <span>Director: </span><span>
+        {% for dirctor in dirctors %}
+           <span><a href="/director/{{ dirctor.id }}">{{ dirctor.name }}</a></span>
+        {% endfor %}
+    </span>
+    <br>
+    <br>
+    <span>Actor: </span><span>
+        {% for actor in actors %}
+            <span><a href="/actorinfo/{{ actor.id }}">{{ actor.name }}</a></span>
+        {% endfor %}
+    </span>
+    <br>
+    <br>
+    <span>Genre: </span><span>{{ genre.name }}</span>
+    <br>
+    <br>
+    <span>Release Date: </span><span>{{ movie.release_date }}</span>
+    <br>
+    <br>
+    </div>
+    <br>
+    <h3>{{ movie.title }} detail information</h3>
+    <div>
+        {{ movie.detailed_information }}
+    </div>
+    <h3>{{ movie.title }} comments</h3>
+    {% for comment in comments %}
+        <span>{{ comment.username }}   {{ comment.createtime }}</span>
+        <br>
+        <span>{{ comment.content }}</span>
+        <br>
+        <br>
+    {% endfor %}
+    <a href = "/addcom/{{ movie.id }}/">Add Movie Comment</a>
+{% endblock %}
