@@ -4,17 +4,17 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
-engine = create_engine('mysql+pymysql://root:123456@34.92.95.75:3306/ratemm', echo=True)
+engine = create_engine('mysql+pymysql://root:@localhost:3306/reratemm', echo=True)
 Base = declarative_base()
-class artists(Base):
-    __tablename__ = "artist"
+class Artists(Base):
+    __tablename__ = "Artist"
     id = Column(Integer, primary_key=True)
     name = Column(String)
     def __repr__(self):
         return "{}".format(self.name)
-class albums(Base):
+class Albums(Base):
     """"""
-    __tablename__ = "album"
+    __tablename__ = "Album"
     id = Column(Integer, primary_key=True)
     cover = Column (String) 
     name = Column(String)

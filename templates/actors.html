@@ -15,8 +15,7 @@
          {{ message }}
       {%- endfor %}
 
-      <h3>Actors <!--(<a href = "{{ url_for('reg') }}"> Search for Actors
-         </a>)--></h3>
+      <h3>Actors</h3>
       <table>
          <thead>
             <tr>
@@ -35,7 +34,7 @@
                   <td>{{ actor.name }}</td>
                   <td>{{ actor.country }}</td>
                   <td>{{ actor.date_of_birth }}</td>
-                  <td>{{ actor.act }}</td>
+                  <td>{{ actor.acts }}</td>
                </tr>
             {% endfor %}
          </tbody>
