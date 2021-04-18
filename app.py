@@ -427,8 +427,9 @@ def tracks():
 
 # add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
 # and dont know how to get current time for createtime
-@login_required
+
 @app.route('/addcom/<int:id>/', methods=['GET', 'POST'])
+@login_required
 def addcom(id):
     if request.method == 'POST':
         if not request.form['content']:
