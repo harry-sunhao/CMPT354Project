@@ -6,7 +6,12 @@
     Nickname: <input type="text" name="name" autocomplete="off" required value="{{ current_user.username }}">
     <input class="btn" type="submit" name="submit" value="Save">
 </form>
-<p></p>
+<div>
+<span>Movie rating weight: {{ current_user.movie_rating_weight }}</span>
+<br>
+<span>Music rating weight: {{ current_user.music_rating_weight }}</span>
+</div>
+    <br>
 <a class="btn" type="button" href="{{ url_for('delete', user_id=current_user.id) }}"onclick="return confirm('Are you sure?')">Delete this account </a>
 <h3>All comments</h3>
     {% for comment in comments %}

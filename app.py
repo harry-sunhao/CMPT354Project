@@ -5,6 +5,8 @@ import sqlalchemy
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+
+from sqlalchemy import event
 from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from db_setup import db_session
@@ -54,8 +56,8 @@ class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column('id', db.INTEGER(), primary_key=True)
     email = db.Column('email', db.VARCHAR(255), unique=True)
-    music_rating_weight = db.Column('music_rating_weight', db.FLOAT(255))
-    movie_rating_weight = db.Column('movie_rating_weight', db.FLOAT(255))
+    music_rating_weight = db.Column('music_rating_weight', db.FLOAT(255),default=1)
+    movie_rating_weight = db.Column('movie_rating_weight', db.FLOAT(255),default=1)
     username = db.Column('username', db.VARCHAR(255), unique=True)
     password = db.Column('password', db.VARCHAR(255))
     certification_information = db.Column('certification_information', db.VARCHAR(255))
@@ -154,7 +156,7 @@ def register():
                 id = 1;
             else:
                 id = len(User.query.all()) + 1
-            t_user = User(id=id, email=email, username=username, password=password)
+            t_user = User(id=id, email=email, username=username, password=password,)
             db.session.add(t_user)
             db.session.commit()
             flash('Add user ' + request.form['username'] + ' successfully. ')
@@ -470,7 +472,7 @@ def addrate(id):
         if not request.form['content']:
             flash('Please enter all the fields', 'error')
         else:
-            rate = int(request.form['content'])
+            rate = float(request.form['content'])
             if (rate<1 or rate >10):
                 flash('Please check your rate value', 'error')
                 return redirect(url_for('addrate',id=id))
@@ -478,13 +480,37 @@ def addrate(id):
             if db.session.query(Movie_Rating).filter(Movie_Rating.user_id==user_id,Movie_Rating.movie_id==id).all():
                 flash("you already comment this movie.")
                 return redirect(url_for('movieinfo',id=id))
-            t_mov = Movie_Rating(id, user_id,request.form['content'])
+            if(current_user.movie_rating_weight ==0):
+                current_user.movie_rating_weight =1
+            rate = rate * current_user.movie_rating_weight
+            t_mov = Movie_Rating(id, user_id,rate)
             db.session.add(t_mov)
+
             db.session.commit()
+            user = User.query.get_or_404(user_id)
             flash('Add movie rating ' + request.form['content'] + ' successfully. ')
+
             return redirect(url_for('movieinfo',id=id))
     return render_template('addrate.html',id=id)
 
+def rate_success(user_id):
+    user = User.query.get_or_404(user_id)
+    user.movie_rating_weight += 1
+    db.session.commit()
+
+@event.listens_for(Movie_Rating,'after_insert')
+def receive_after_insert(mapper, connection, target):
+    user_id = target.user_id
+    user = User.query.filter_by(id=user_id).first()
+    weight = user.movie_rating_weight +1
+    User.query.filter_by(id=user_id).update(dict(movie_rating_weight=weight))
+
+@event.listens_for(Movie_Comment,'after_insert')
+def receive_after_insert(mapper, connection, target):
+    user_id = target.user_id
+    user = User.query.filter_by(id=user_id).first()
+    weight = user.movie_rating_weight + 1
+    User.query.filter_by(id=user_id).update(dict(movie_rating_weight=weight))
 # search part start
 @app.route('/search', methods=['GET', 'POST'])
 def search():
