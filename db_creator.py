@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 
-engine = create_engine('mysql+pymysql://root:@localhost:3306/reratemm', echo=True)
+engine = create_engine('mysql+pymysql://root:123456@34.92.95.75:3306', echo=True)
 Base = declarative_base()
 class Artists(Base):
     __tablename__ = "Artist"
@@ -21,7 +21,7 @@ class Albums(Base):
     releaseDate = Column(String)
     detailedInfo = Column(String)
     album_or_ep = Column (Integer)
-    #g_id= Column (Integer, ForeignKey('genre.id'))
+    g_id= Column (Integer, ForeignKey('genre.id'))
     #track_name= Column (String, ForeignKey('track.name'))
     #c_id= Column ('c_id', db.INTEGER(), ForeignKey('albumcomment.comment_id'))
 

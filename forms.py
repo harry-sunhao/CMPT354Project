@@ -36,7 +36,4 @@ class AlbumForm(Form):
     releaseDate = DateField('Release Date (FORMAT: YYYY-MM-DD)')
     detailedInfo = StringField('Detailed Information')
     genre_id = SelectField('Genre', choices=genre_id)
-    album_artists = StringField('Artists')
-    album_comment = StringField('Comments')
-    album_rating = SelectField('Rating', choices=album_rating)
-    tracks = StringField('Tracks') #needs to make sure relation works
+    

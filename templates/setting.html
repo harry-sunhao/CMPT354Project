@@ -10,7 +10,7 @@
 <a class="btn" type="button" href="{{ url_for('delete', user_id=current_user.id) }}"onclick="return confirm('Are you sure?')">Delete this account </a>
 <h3>All comments</h3>
     {% for comment in comments %}
-        <span>{{ comment.username }}   {{ comment.createtime }}<a class="btn" type="button" value="Delete" href="{{ url_for('delcom', id=comment.comment_id) }}"onclick="return confirm('Are you sure{{ comment.comment_id }}?')">Delete </a>
+        <span>{{ comment.username }}   {{ comment.createtime }}  {{ comment.movie_id }}<a class="btn" type="button" value="Delete" href="{{ url_for('delcom', id=comment.comment_id) }}"onclick="return confirm('Are you sure{{ comment.comment_id }}?')">Delete </a>
 </span>
         <br>
         <span>{{ comment.content }}</span>

@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <doctype html="">
     <title>Delete Album</title>
     <h2>Delete Album</h2>
@@ -11,12 +13,9 @@
             {{ render_field(form.releaseDate) }}
             {{ render_field(form.detailedInfo) }}
             {{ render_field(form.genre_id) }}
-            {{ render_field(form.name) }}
-            {{ render_field(form.album_artists) }}
-            {{ render_field(form.album_comment) }}
-            {{ render_field(form.album_rating) }}
-            {{ render_field(form.tracks) }}
+
         </dl>
         <p><input type="submit" value="Delete">
     </p></form>
     </doctype>
+{% endblock %}
