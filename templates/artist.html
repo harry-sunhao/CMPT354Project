@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -7,13 +9,10 @@
    <body>
 
       <h3>
-         <a href = "{{ url_for('artists') }}">Show all Artists info</a>
+         <a href = "/search">Return to Search</a>
       </h3>
 
       <hr/>
-      {%- for message in get_flashed_messages() %}
-         {{ message }}
-      {%- endfor %}
 
       <h3>Artists </h3>
       <table>
@@ -51,3 +50,4 @@
 
    </body>
 </html>
+{% endblock %}

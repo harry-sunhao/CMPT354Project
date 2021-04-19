@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -5,16 +7,11 @@
     <title>Rate Music&Movie---All Albums Information</title>
 </head>
    <body>
- <!--
-      <h3>
-         <a href = "{{ url_for('albums') }}">Add New Album</a>
-      </h3>
--->>
-      <hr/>
-      {%- for message in get_flashed_messages() %}
-         {{ message }}
-      {%- endfor %}
 
+      <h3>
+         <a href = "/search">Return to Search</a>
+      </h3>
+      <hr/>
       <h3>Albums </h3>
       <table>
          <thead>
@@ -53,4 +50,5 @@
       </table>
 
    </body>
+   {% endblock %}
 </html>

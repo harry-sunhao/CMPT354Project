@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rate Music&Movie---Tracks Information</title>
+</head>
+   <body>
+
+      <h3>
+         <a href = "/search">Return to Search</a>
+      </h3>
+
+      <hr/>
+      {%- for message in get_flashed_messages() %}
+         {{ message }}
+      {%- endfor %}
+
+      <h3>Tracks </h3>
+      <table>
+         <thead>
+            <tr>
+               <th>ID</th>
+               <th>Name</th>
+               <th>Album</th>
+                <th>Genre</th>
+                <th>Track Artist</th>
+            </tr>
+         </thead>
+
+         <tbody>
+            {% for track in tracks %}
+               <tr>
+                  <td>{{ track.id }}</td>
+                  <td>{{ track.name }}</td>
+                  <td>{{ track.album_id }}</td>
+                  <td>{{ track.genre_id }}</td>
+                  <td>{{ track.track_artists }}</td>
+
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+
+   </body>
+</html>
+{% endblock %}

@@ -5,16 +5,15 @@ import sqlalchemy
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+
+from sqlalchemy import event
 from sqlalchemy.orm import relationship, backref
-
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from db_setup import db_session
 from forms import SearchForm, AlbumForm, MovieForm
 from tables import Results, ResultsMov, ResultsTrack, ResultsArtist, ResultsActor, ResultsDirector
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/ratemm'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@34.92.95.75:3306/ratemm'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -22,23 +21,23 @@ app.secret_key = 'CMPT354PROJECT'
 db = SQLAlchemy(app, use_native_unicode='utf8')
 
 # relation
-# many-Many relation for act
+# many-many relation for act
 acts = db.Table('act',
                 db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
                 db.Column('actor_id', db.INTEGER(), db.ForeignKey('actor.id'), primary_key=True)
                 )
-# many-Many relation for direct
+# many-many relation for direct
 directs = db.Table('direct',
                    db.Column('movie_id', db.INTEGER(), db.ForeignKey('movie.id'), primary_key=True),
                    db.Column('director_id', db.INTEGER(), db.ForeignKey('director.id'), primary_key=True)
                    )
 
-# many-Many relation for produce
+# many-Many relation for albumartists
 album_artists = db.Table('albumartist',
                          db.Column('album_id', db.INTEGER(), db.ForeignKey('album.id'), primary_key=True),
                          db.Column('artist_id', db.INTEGER(), db.ForeignKey('artist.id'), primary_key=True)
                          )
-
+# many-Many relation for trackartists
 track_artists = db.Table('trackartist',
                          db.Column('track_id', db.INTEGER(), db.ForeignKey('track.id'), primary_key=True),
                          db.Column('album_id', db.INTEGER(), db.ForeignKey('album.id'), primary_key=True),
@@ -57,8 +56,8 @@ class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column('id', db.INTEGER(), primary_key=True)
     email = db.Column('email', db.VARCHAR(255), unique=True)
-    music_rating_weight = db.Column('music_rating_weight', db.FLOAT(255))
-    movie_rating_weight = db.Column('movie_rating_weight', db.FLOAT(255))
+    music_rating_weight = db.Column('music_rating_weight', db.FLOAT(255),default=1)
+    movie_rating_weight = db.Column('movie_rating_weight', db.FLOAT(255),default=1)
     username = db.Column('username', db.VARCHAR(255), unique=True)
     password = db.Column('password', db.VARCHAR(255))
     certification_information = db.Column('certification_information', db.VARCHAR(255))
@@ -77,7 +76,7 @@ def load_user(user_id):
     user = User.query.get(int(user_id))
     return user
 
-
+#user settings, update user name, delete and show all comments by the user
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -98,6 +97,7 @@ def settings():
     print(current_user.id)
     return render_template('setting.html',comments=comments)
 
+#delete comment
 @app.route('/delcom/<int:id>',methods=['GET'])
 def delcom(id):
         mc = Movie_Comment.query.get_or_404(id)
@@ -106,7 +106,7 @@ def delcom(id):
         db.session.commit()
         flash('Comment deleted.')
         return redirect(url_for('settings',comments=Movie_Comment.query.filter_by(user_id=current_user.id).all()))
-
+#login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -130,7 +130,7 @@ def login():
 
     return render_template('login.html')
 
-
+#logout
 @app.route('/logout')
 @login_required
 def logout():
@@ -138,7 +138,7 @@ def logout():
     flash('Goodbye.')
     return redirect(url_for('index'))
 
-
+#register new user
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -156,20 +156,20 @@ def register():
                 id = 1;
             else:
                 id = len(User.query.all()) + 1
-            t_user = User(id=id, email=email, username=username, password=password)
+            t_user = User(id=id, email=email, username=username, password=password,)
             db.session.add(t_user)
             db.session.commit()
             flash('Add user ' + request.form['username'] + ' successfully. ')
             return redirect(url_for('login'))
     return render_template('reg.html')
 
-
+#all users
 @app.route('/userinfo')
 def show_all():
     a_user = User.query.all()
     return render_template('show_all.html', users=a_user)
 
-
+#delete user
 @app.route('/user/delete/<int:user_id>', methods=['GET'])
 @login_required
 def delete(user_id):
@@ -180,7 +180,7 @@ def delete(user_id):
     return redirect(url_for('index'))
 
 
-def covertEpOrAlbum(lst, index):  # which one is album?
+def covertEpOrAlbum(lst, index):  #Which one is Album vs EP
     for i in range(len(lst)):
         lst[i] = list(lst[i])
         if (lst[i][index] == 1):
@@ -189,14 +189,20 @@ def covertEpOrAlbum(lst, index):  # which one is album?
             lst[i][index] = "EP"
     return lst
 
-
+#show Most popular Movies, Albums using AGGREGATION QUERY and summary of Number of Movies and Albums in the database 
 @app.route('/')
 def index():
     movieNumber = Movie.query.count()
     albumNumber = Album.query.count()
-    sql_query = "SELECT movie.id,movie.title,movie.country,movie.release_date FROM movie RIGHT JOIN( SELECT id FROM movie JOIN moviecomment WHERE moviecomment.movie_id = movie.id GROUP BY id ORDER BY count(*) DESC) AS pop ON movie.id = pop.id"
+    sql_query = "SELECT movie.id,movie.title,movie.country,movie.release_date \
+        FROM movie RIGHT JOIN( SELECT id FROM movie JOIN moviecomment \
+        WHERE moviecomment.movie_id = movie.id GROUP BY id ORDER BY count(*) DESC) AS pop ON movie.id = pop.id"
     moviePopular = list(db.session.execute(sql_query))
-    sql_query = "SELECT data.id,data.name,data.album_or_ep,(genre.name) AS genreName FROM genre RIGHT JOIN(SELECT album.id,album.name,album.album_or_ep, album.genre_id FROM album RIGHT JOIN (SELECT id FROM album JOIN albumcomment WHERE albumcomment.album_id = album.id GROUP BY id ORDER BY count(*) DESC) AS pop ON album.id = pop.id) data ON data.genre_id=genre.id"
+    sql_query = "SELECT data.id,data.name,data.album_or_ep,(genre.name) AS genreName \
+        FROM genre RIGHT JOIN(SELECT album.id,album.name,album.album_or_ep, album.genre_id \
+        FROM album RIGHT JOIN (SELECT id FROM album JOIN albumcomment WHERE \
+        albumcomment.album_id = album.id GROUP BY id ORDER BY count(*) DESC) \
+        AS pop ON album.id = pop.id) data ON data.genre_id=genre.id"
     albumPopular = list(db.session.execute(sql_query))
     albumPopular = covertEpOrAlbum(albumPopular, 2)
     # print(albumPopular)
@@ -257,7 +263,7 @@ class Movie_Rating(db.Model):
         self.user_id = user_id
         self.movie_id = movie_id
 
-
+#cascade delete album
 class Album(db.Model):
     __tablename__ = "album"
     id = db.Column('id', db.INTEGER(), primary_key=True)
@@ -361,8 +367,6 @@ class Track_Rating(db.Model):
     value = db.Column('value', db.FLOAT())
     user = db.relationship('User', back_populates='track_rating', foreign_keys=user_id, cascade="all, delete")
 
-    # track = db.relationship('Track', back_populates='ratings')
-
     def __init__(self, rate_id, createtime, value):
         self.rate_id = rate_id
         self.createtime = createtime
@@ -377,7 +381,6 @@ class Track(db.Model):
     genre_id = db.Column('genre_id', db.INTEGER(), db.ForeignKey('genre.id'))
     track_artists = db.relationship('Artist', secondary=track_artists, lazy='subquery',
                                     backref=db.backref('Track', lazy=True), cascade="all, delete")
-    # ratings = db.relationship('Track_Rating', back_populates='tracks')
 
 
 @app.route('/movie')
@@ -385,14 +388,16 @@ def mov():
 
     return render_template('movie.html', movies=Movie.query.all())
 
-
+# movie info showed using JOIN QUERY
 @app.route('/movieinfo/<int:id>/',methods=['GET', 'POST'])
 def movieinfo(id):
     movie = Movie.query.get_or_404(id)
     dirctors = movie.directs
     actors = movie.acts
     genre =Genre.query.get_or_404(movie.genre_id)
-    comments =list(db.session.execute("SELECT DATE_FORMAT(moviecomment.createtime,'%Y-%m-%d')AS createtime,moviecomment.content,user.username FROM moviecomment JOIN user ON moviecomment.user_id = user.id AND moviecomment.movie_id = "+str(id)))
+    comments =list(db.session.execute("SELECT DATE_FORMAT(moviecomment.createtime,\
+    '%Y-%m-%d')AS createtime,moviecomment.content,user.username FROM moviecomment \
+    JOIN user ON moviecomment.user_id = user.id AND moviecomment.movie_id = "+str(id)))
     rating = list(movie.rating)
     count = len(rating)
     sum = 0
@@ -409,38 +414,38 @@ def movieinfo(id):
         return redirect('movieinfo.html', movie=movie, dirctors=dirctors, actors=actors, genre=genre,
                                comments=comments, rating=rating)
 
-    return render_template('movieinfo.html', movie=movie, dirctors=dirctors,actors=actors,genre=genre,comments=comments,rating=rating )
+    return render_template('movieinfo.html', movie=movie, dirctors=dirctors,\
+        actors=actors,genre=genre,comments=comments,rating=rating )
 
-
+#info of specific actor
 @app.route('/actorinfo/<int:id>/')
 def actors(id):
     actor = Actor.query.get_or_404(id)
     movies = actor.acts
     return render_template('actors.html', actor=actor,movies=movies)
-
+#info of specific director
 @app.route('/director/<int:id>/')
 def director(id):
     director = Director.query.get_or_404(id)
     movies = director.directs
     return render_template('director.html',director=director,movies=movies)
+
+#info of all albums in db
 @app.route('/albuminfo')
 def albums():
     return render_template('album.html', albums=Album.query.all())
 
-
+#info of all artists in db
 @app.route('/artistinfo')
 def artists():
     return render_template('artist.html', artists=Artist.query.all())
 
-
+#info of all tracks in db
 @app.route('/track')
 def tracks():
     return render_template('track.html', tracks=Track.query.all())
 
-
-# add comment: works! no restrictions added yet for comment ID,(want to make it increment automatically but)
-# and dont know how to get current time for createtime
-
+#add omment to specific movie
 @app.route('/addcom/<int:id>/', methods=['GET', 'POST'])
 @login_required
 def addcom(id):
@@ -461,7 +466,7 @@ def addcom(id):
             return redirect(url_for('movieinfo',id=id))
     return render_template('addcom.html')
 
-
+#add rating to specific movie
 @app.route('/addrate/<int:id>/', methods=['GET', 'POST'])
 @login_required
 def addrate(id):
@@ -469,7 +474,7 @@ def addrate(id):
         if not request.form['content']:
             flash('Please enter all the fields', 'error')
         else:
-            rate = int(request.form['content'])
+            rate = float(request.form['content'])
             if (rate<1 or rate >10):
                 flash('Please check your rate value', 'error')
                 return redirect(url_for('addrate',id=id))
@@ -477,12 +482,37 @@ def addrate(id):
             if db.session.query(Movie_Rating).filter(Movie_Rating.user_id==user_id,Movie_Rating.movie_id==id).all():
                 flash("you already comment this movie.")
                 return redirect(url_for('movieinfo',id=id))
-            t_mov = Movie_Rating(id, user_id,request.form['content'])
+            if(current_user.movie_rating_weight ==0):
+                current_user.movie_rating_weight =1
+            rate = rate * current_user.movie_rating_weight
+            t_mov = Movie_Rating(id, user_id,rate)
             db.session.add(t_mov)
+
             db.session.commit()
+            user = User.query.get_or_404(user_id)
             flash('Add movie rating ' + request.form['content'] + ' successfully. ')
+
             return redirect(url_for('movieinfo',id=id))
     return render_template('addrate.html',id=id)
+
+def rate_success(user_id):
+    user = User.query.get_or_404(user_id)
+    user.movie_rating_weight += 1
+    db.session.commit()
+
+@event.listens_for(Movie_Rating,'after_insert')
+def receive_after_insert(mapper, connection, target):
+    user_id = target.user_id
+    user = User.query.filter_by(id=user_id).first()
+    weight = user.movie_rating_weight +1
+    User.query.filter_by(id=user_id).update(dict(movie_rating_weight=weight))
+
+@event.listens_for(Movie_Comment,'after_insert')
+def receive_after_insert(mapper, connection, target):
+    user_id = target.user_id
+    user = User.query.filter_by(id=user_id).first()
+    weight = user.movie_rating_weight + 1
+    User.query.filter_by(id=user_id).update(dict(movie_rating_weight=weight))
 # search part start
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -491,7 +521,7 @@ def search():
         return search_results(search)
     return render_template('search.html', form=search)
 
-
+#search based on name of Album, Movie, Track, Actor, Director
 @app.route('/results')
 def search_results(search):
     results = []
@@ -499,18 +529,13 @@ def search_results(search):
 
     if search_string:
         if search.data['select'] == 'Album':
-            qry = db_session.query(Album).filter(
-                Album.name.contains(search_string))
+            qry = Album.query.filter(Album.name.contains(search_string))
             results = qry.all()
             table = Results(results)
         elif search.data['select'] == 'Movie':
             qry = Movie.query.filter(Movie.title.contains(search_string))
             results = qry.all()
             table = ResultsMov(results)
-        elif search.data['select'] == 'Track':
-            qry = Track.query.filter(Track.name.contains(search_string))
-            results = qry.all()
-            table = ResultsTrack(results)
         elif search.data['select'] == 'Track':
             qry = Track.query.filter(Track.name.contains(search_string))
             results = qry.all()
@@ -528,21 +553,21 @@ def search_results(search):
             results = qry.all()
             table = ResultsDirector(results)
         else:
-            flash('No results found!')
+            flash('No results found! Please try again')
             return redirect('/search')
     else:
         flash('Please fill the fields')
         return redirect('/search')
 
     if not results:
-        flash('No results found wrong input!')
+        flash('No results found. Wrong input. Please try again')
         return redirect('/search')
     else:
         # display results
         table.border = True
         return render_template('results.html', table=table)
 
-
+#edit album using the search function
 @app.route('/item/<int:id>', methods=['GET', 'POST'])
 def edit(id):
     qry = Album.query.filter(Album.id == id)
@@ -559,7 +584,7 @@ def edit(id):
         return 'Error loading #{id}'.format(id=id)
     # </int:id>
 
-
+#add new album using the search function
 @app.route('/new_album', methods=['GET', 'POST'])
 def new_album():
     form = AlbumForm(request.form)
@@ -588,23 +613,16 @@ def album_save_changes(al, form, new=False):
     """
     Save the changes to the database
     """
-    # Get data from form and assign it to the correct attributes
-    # of the SQLAlchemy table object
+    # grabbing data from sql and assign
     al.id = form.id.data
     al.cover = form.cover.data
     al.name = form.name.data
     al.releaseDate = form.releaseDate.data
     al.detailedInfo = form.detailedInfo.data
     al.album_or_ep = form.album_or_ep.data
-    genre_id = form.genre_id.data
-    album_artists = form.album_artists.data  ###NEED TO FIX RELATIONS!!!
-    album_comment = form.album_comment.data
-    album_rating = form.album_rating.data
-    tracks = form.tracks.data
+    al.genre_id = form.genre_id.data
     if new:
-        # Add the new album to the database
         db.session.add(al)
-    # commit the data to the database
     db.session.commit()
 
 def movie_save_changes(mov, form, new=False):
@@ -625,12 +643,9 @@ def movie_save_changes(mov, form, new=False):
     # commit the data to the database
     db.session.commit()
 
+#delete album from search
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delet(id):
-    """
-    Delete the item in the database that matches the specified
-    id in the URL
-    """
     qry = Album.query.filter(Album.id == id)
     al = qry.first()
     if al:
