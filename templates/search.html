@@ -1,10 +1,5 @@
 {% extends 'base.html' %}
 {% block content %}
-<<<<<<< HEAD
-<a href="{{ url_for('.new_album') }}"> New Album </a>
-<a href="{{ url_for('.new_movie') }}"> New Movie </a>
-=======
->>>>>>> 51ee1484289d896f4c2d08531f2b7766a3846838
 {% from "_formhelpers.html" import render_field %}
 <form method="post">
   <p>
@@ -26,7 +21,8 @@
   </p>
 <p>
 <a href="{{ url_for('.new_album') }}"> New Album </a>
-
-
 </p>
+<p>
+  <a href="{{ url_for('.new_movie') }}"> New Album </a>
+  </p>
 {% endblock %}
