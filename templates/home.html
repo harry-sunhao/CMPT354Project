@@ -1,53 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Rate Music&Movie</title>
-    <style>
-      ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-      li {
-        float: left;
-      }
-      a:link,
-      a:visited {
-        display: block;
-        width: 120px;
-        font-weight: bold;
-        color: #ffffff;
-        background-color: #98bf21;
-        text-align: center;
-        padding: 4px;
-        text-decoration: none;
-        text-transform: uppercase;
-      }
-      a:hover,
-      a:active {
-        background-color: #7a991a;
-      }
-    </style>
-  </head>
+{% extends 'base.html' %}
+{% block content %}
 
-  <body>
-    <p>{%- for message in get_flashed_messages() %} {{ message }}</p>
-    {%- endfor %}
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('index') }}">Home</a></li>
-            {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('settings') }}">Settings</a></li>
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-            {% else %}
-            <li><a href="{{ url_for('register') }}">Register</a></li>
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% block content %}{% endblock %}
-
-  </body>
-</html>
+<h2>Most Popular <a href="{{ url_for('mov') }}">Movie</a></h2>
+      <table>
+         <thead>
+            <tr>
+               <th>Title</th>
+               <th>Country</th>
+               <th>Release Date</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for movie in movie_popular %}
+               <tr>
+                   <td><a href="/movieinfo/{{ movie[0] }}">{{ movie[1] }}</a></td>
+                <td>{{ movie[2] }}</td>
+                <td>{{ movie[3] }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+<h2>Most Popular <a href="{{ url_for('albums') }}">Album</a></h2>
+      <table>
+         <thead>
+            <tr>
+               <th>Title</th>
+               <th>Type</th>
+               <th>Genre</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for album in album_popular %}
+               <tr>
+                <td>{{ album[1] }}</td>
+                <td>{{ album[2] }}</td>
+                <td>{{ album[3] }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+<h2>Genre for all Movies</h2>
+      <table>
+         <thead>
+            <tr>
+               <th>id</th>
+               <th>Name</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for genre in genre_for_all_movies %}
+               <tr>
+               <td>{{ genre[0] }}</td>
+               <td>{{ genre[1] }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+<h2>Summary</h2>
+    <p>Until <label id="now" style="white-space:nowrap;"></label>, this database has {{ movie_number }} movies, and {{ album_number }} albums</p>
+{% endblock %}

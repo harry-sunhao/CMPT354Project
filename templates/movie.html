@@ -1,48 +1,25 @@
-<!DOCTYPE html>
-<html lang = "en">
-<head>
-    <meta charset="UTF-8">
-    <title>Rate Music&Movie---All Albums Information</title>
-</head>
-   <body>
-
-      <h3>
-         <a href = "{{ url_for('addcom') }}">Add Movie Comment</a>
-      </h3>
-
-      <hr/>
-      {%- for message in get_flashed_messages() %}
-         {{ message }}
-      {%- endfor %}
-
-      <h3>Movies </h3>
+{% extends 'base.html' %}
+{% block content %}
+<h3>
+   <a href = "/search">Return to Search</a>
+</h3>
+<h3>Movies </h3>
       <table>
          <thead>
             <tr>
-               <th>ID</th>
                <th>Title</th>
-               <th>Detailed Information</th>
-               <th>Movie Comments</th>
-                <th>Actors</th>
-                <th>Directors</th>
-              
+               <th>Country</th>
+               <th>Release Date</th>
             </tr>
          </thead>
-
          <tbody>
-            {% for post in posts %}
+            {% for movie in movies %}
                <tr>
-                  <td>{{ post.id }}</td>
-                  <td>{{ post.title }}</td>
-                  <td>{{ post.detailed_information }}</td>
-                  <td>{{ post.moviecomments }}</td>
-                  <td>{{ post.act }}</td>
-                  <td>{{ post.direct }}</td>
-                  
+                   <td><a href="/movieinfo/{{ movie.id }}">{{ movie.title }}</a></td>
+                <td>{{ movie.country }}</td>
+                <td>{{ movie.release_date }}</td>
                </tr>
             {% endfor %}
          </tbody>
       </table>
-
-   </body>
-</html>
+{% endblock %}

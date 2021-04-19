@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -7,16 +9,12 @@
    <body>
 
       <h3>
-         <a href = "{{ url_for('artists') }}">Show all Artists info</a>
+         <a href = "/search">Return to Search</a>
       </h3>
 
       <hr/>
-      {%- for message in get_flashed_messages() %}
-         {{ message }}
-      {%- endfor %}
 
-      <h3>Artists <!--(<a href = "{{ url_for('reg') }}"> Search for Artists
-         </a>)--></h3>
+      <h3>Artists </h3>
       <table>
          <thead>
             <tr>
@@ -27,8 +25,8 @@
                 <th>Company</th>
                 <th>Country</th>
                 <th>Genre</th>
-                <th>Track Name</th>
                 <th>Album ID</th>
+                <th>Track Name</th>
             </tr>
          </thead>
 
@@ -38,13 +36,13 @@
                   <td>{{ artist.id }}</td>
                   <td>{{ artist.name }}</td>
                   <td>{{ artist.portrait }}</td>
-                  <td>{{ artist.detailedinfo }}</td>
+                  <td>{{ artist.detailedInfo }}</td>
                   <td>{{ artist.company}}</td>
                   <td>{{ artist.country }}</td>
-                  <td>{{ artist.g_id }}</td>
-                  <td>{{ artist.track_name }}</td>
-                  <td>{{ artist.album_id }}</td>
-                  <td>{{ artist.producealbum }}</td>
+                  <td>{{ artist.genre_id}}</td>
+                  <td>{{ artist.album_artists }}</td>
+                  <td>{{ artist.track_artists}}</td>
+
                </tr>
             {% endfor %}
          </tbody>
@@ -52,3 +50,4 @@
 
    </body>
 </html>
+{% endblock %}

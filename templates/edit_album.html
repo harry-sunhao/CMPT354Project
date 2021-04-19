@@ -1,15 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
 <doctype html="">
     <title>Edit Album </title>
+    <a href = "/search">Return to Search</a>
     <h2>Edit Album</h2>
     {% from "_formhelpers.html" import render_field %}
     <form method="post">
         <dl>
             {{ render_field(form.id) }}
+            {{ render_field(form.cover) }}
             {{ render_field(form.name) }}
+            {{ render_field(form.album_or_ep) }}
             {{ render_field(form.releaseDate) }}
             {{ render_field(form.detailedInfo) }}
-            {{ render_field(form.album_or_ep) }}
+            {{ render_field(form.genre_id) }}
+
+            
         </dl>
         <p><input type="submit" value="Submit">
     </p></form>
 </doctype>
+{% endblock %}

@@ -6,54 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RateMusic and Movie</title>
     <! link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <! link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
-    <style>
-      ul {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-      li {
-        float: left;
-      }
-      a:link,
-      a:visited {
-        display: block;
-        width: 120px;
-        font-weight: bold;
-        color: #ffffff;
-        background-color: #98bf21;
-        text-align: center;
-        padding: 4px;
-        text-decoration: none;
-        text-transform: uppercase;
-      }
-      a:hover,
-      a:active {
-        background-color: #7a991a;
-      }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
     {% endblock %}
 </head>
-<body>
+<script type="text/javascript">
+    Date.prototype.Format = function (fmt) {
+    var o = {
+        "M+": this.getMonth() + 1,
+        "d+": this.getDate(),
+        "h+": this.getHours(),
+        "m+": this.getMinutes(),
+        "s+": this.getSeconds(),
+    };
+    if (/(y+)/.test(fmt))
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+}
+
+    function show(){
+        var myDate = new Date().Format("yyyy-MM-dd hh:mm");
+        document.getElementById("now").innerHTML = myDate;
+        setTimeout("show()",60000);
+    }
+
+</script>
+
+<body onload="show()">
     {% for message in get_flashed_messages() %}
         <div class="alert">{{ message }}</div>
     {% endfor %}
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('search') }}">Search</a></li>
             {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('settings') }}">Settings</a></li>
+            <li><a href="{{ url_for('settings') }}">Account</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
             {% else %}
             <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('register') }}">Register</a> </li>
             {% endif %}
         </ul>
     </nav>
     {% block content %}{% endblock %}
     <footer>
-        <small>&copy; 2021 <a href="http://www.sfu.ca">SFU CMPT354</a></small>
+        <small>&copy; 2021 <a href="http://www.sfu.ca">CMPT354 Project Group 38</a></small>
 	</footer>
 </body>
 </html> 

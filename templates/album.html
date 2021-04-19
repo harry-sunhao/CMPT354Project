@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -7,14 +9,9 @@
    <body>
 
       <h3>
-         <a href = "{{ url_for('new_album') }}">Add New Album</a>
+         <a href = "/search">Return to Search</a>
       </h3>
-
       <hr/>
-      {%- for message in get_flashed_messages() %}
-         {{ message }}
-      {%- endfor %}
-
       <h3>Albums </h3>
       <table>
          <thead>
@@ -26,9 +23,10 @@
                 <th>Release Date</th>
                 <th>Detailed Information</th>
                 <th>Genre</th>
-                <th>Tracks</th>
-                <th>Album Comment ID</th>
                 <th>Artists</th>
+                <th>Album Comment ID</th>
+                <th>Album Rating</th>
+                <th>Tracks</th>
             </tr>
          </thead>
 
@@ -41,16 +39,16 @@
                   <td>{{ album.album_or_ep }}</td>
                   <td>{{ album.releaseDate }}</td>
                   <td>{{ album.detailedInfo }}</td>
-                  <td>{{ album.g_id }}</td>
-                  <td>{{ album.track_name }}</td>
-                  <td>{{ album.c_id }}</td>
-                  <td>{{ album.artist }}</td>
-
-                  <td>{{ album.users }}</td>
+                  <td>{{ album.genre_id }}</td>
+                  <td>{{ album.album_artists }}</td>
+                  <td>{{ album.album_comment }}</td>
+                  <td>{{ album.album_rating }}</td>
+                  <td>{{ album.tracks }}</td>
                </tr>
             {% endfor %}
          </tbody>
       </table>
 
    </body>
+   {% endblock %}
 </html>

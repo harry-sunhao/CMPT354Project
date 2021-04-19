@@ -166,11 +166,12 @@ INSERT INTO `AlbumComment` (`comment_id`, `content`, `createtime`, `album_id`, `
 
 DROP TABLE IF EXISTS `AlbumRating`;
 CREATE TABLE IF NOT EXISTS `AlbumRating` (
+  `rate_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
   `value` int DEFAULT NULL,
   `album_id` int NOT NULL,
   `user_id` int NOT NULL,
-  PRIMARY KEY (`album_id`, `user_id`) USING BTREE,
+  PRIMARY KEY (`rate_id`) USING BTREE,
   INDEX `album_id_fk` (`album_id`) USING BTREE,
   INDEX `user_id_fk` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
@@ -179,12 +180,12 @@ CREATE TABLE IF NOT EXISTS `AlbumRating` (
 -- Dumping data for table `AlbumRating`
 --
 
-INSERT INTO `AlbumRating` (`createtime`, `value`, `album_id`, `user_id`) VALUES
-('2020-03-01 00:00:00', 9, 1, 31703000),
-('2020-03-02 00:00:00', 10, 1, 31703001),
-('2020-03-03 00:00:00', 8, 2, 31703002),
-('2020-03-04 00:00:00', 9, 2, 31703003),
-('2020-03-05 00:00:00', 8, 3, 31703003);
+INSERT INTO `AlbumRating` (`rate_id`,`createtime`, `value`, `album_id`, `user_id`) VALUES
+(1,'2020-03-01 00:00:00', 9, 1, 31703000),
+(2,'2020-03-02 00:00:00', 10, 1, 31703001),
+(3,'2020-03-03 00:00:00', 8, 2, 31703002),
+(4,'2020-03-04 00:00:00', 9, 2, 31703003),
+(5,'2020-03-05 00:00:00', 8, 3, 31703003);
 
 -- --------------------------------------------------------
 
@@ -333,7 +334,7 @@ CREATE TABLE IF NOT EXISTS `MovieComment` (
   `content` text CHARACTER SET utf8 COLLATE utf8_bin,
   `movie_id` int NOT NULL,
   `user_id` int NOT NULL,
-  PRIMARY KEY (`comment_id`) USING BTREE,
+  PRIMARY KEY (`comment_id`,) USING BTREE,
   INDEX `movie_id_fk` (`movie_id`) USING BTREE,
   INDEX `user_id_fk` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
@@ -357,11 +358,12 @@ INSERT INTO `MovieComment` (`comment_id`, `createtime`, `content`, `movie_id`, `
 
 DROP TABLE IF EXISTS `MovieRating`;
 CREATE TABLE IF NOT EXISTS `MovieRating` (
+  `rate_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
   `value` int DEFAULT NULL,
   `movie_id` int NOT NULL,
   `user_id` int NOT NULL,
-  PRIMARY KEY (`movie_id`, `user_id`) USING BTREE,
+  PRIMARY KEY (`rate_id`) USING BTREE,
   INDEX `movie_id_fk` (`movie_id`) USING BTREE,
   INDEX `user_id_fk` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
@@ -370,12 +372,12 @@ CREATE TABLE IF NOT EXISTS `MovieRating` (
 -- Dumping data for table `MovieRating`
 --
 
-INSERT INTO `MovieRating` (`createtime`, `value`, `movie_id`, `user_id`) VALUES
-('2020-02-01 00:00:00', 7, 1, 31703001),
-('2020-02-01 00:00:00', 6, 2, 31703003),
-('2020-03-01 00:00:00', 8, 3, 31703003),
-('2020-04-01 00:00:00', 5, 4, 31703004),
-('2020-05-01 00:00:00', 10, 5, 31703004);
+INSERT INTO `MovieRating` (`rate_id`,`createtime`, `value`, `movie_id`, `user_id`) VALUES
+(1,'2020-02-01 00:00:00', 7, 1, 31703001),
+(2,'2020-02-01 00:00:00', 6, 2, 31703003),
+(3,'2020-03-01 00:00:00', 8, 3, 31703003),
+(4,'2020-04-01 00:00:00', 5, 4, 31703004),
+(5,'2020-05-01 00:00:00', 10, 5, 31703004);
 
 -- --------------------------------------------------------
 
@@ -441,12 +443,13 @@ INSERT INTO `Track` (`id`, `name`, `album_id`, `genre_id`) VALUES
 
 DROP TABLE IF EXISTS `TrackRating`;
 CREATE TABLE IF NOT EXISTS `TrackRating` (
+  `rate_id` int NOT NULL,
   `createtime` datetime DEFAULT NULL,
   `value` int DEFAULT NULL,
   `track_id` int NOT NULL,
   `album_id` int NOT NULL,
   `user_id` int NOT NULL,
-  PRIMARY KEY (`track_id`, `album_id`, `user_id`) USING BTREE,
+  PRIMARY KEY (`rate_id`) USING BTREE,
   INDEX `track_fk` (`track_id`, `album_id`) USING BTREE,
   INDEX `user_id_fk` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=COMPACT;
@@ -455,12 +458,12 @@ CREATE TABLE IF NOT EXISTS `TrackRating` (
 -- Dumping data for table `TrackRating`
 --
 
-INSERT INTO `TrackRating` (`createtime`, `value`, `track_id`, `album_id`, `user_id`) VALUES
-('2020-01-01 00:00:00', 10, 1, 1, 31703001),
-('2020-01-01 00:00:00', 9, 2, 1, 31703001),
-('2020-01-01 00:00:00', 8, 3, 1, 31703001),
-('2020-01-01 00:00:00', 6, 1, 1, 31703002),
-('2020-01-01 00:00:00', 5, 2, 1, 31703002);
+INSERT INTO `TrackRating` (`rate_id`, `createtime`, `value`, `track_id`, `album_id`, `user_id`) VALUES
+(1,'2020-01-01 00:00:00', 10, 1, 1, 31703001),
+(2,'2020-01-01 00:00:00', 9, 2, 1, 31703001),
+(3,'2020-01-01 00:00:00', 8, 3, 1, 31703001),
+(4,'2020-01-01 00:00:00', 6, 1, 1, 31703002),
+(5,'2020-01-01 00:00:00', 5, 2, 1, 31703002);
 
 -- --------------------------------------------------------
 
