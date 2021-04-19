@@ -199,9 +199,11 @@ def index():
     sql_query = "SELECT data.id,data.name,data.album_or_ep,(genre.name) AS genreName FROM genre RIGHT JOIN(SELECT album.id,album.name,album.album_or_ep, album.genre_id FROM album RIGHT JOIN (SELECT id FROM album JOIN albumcomment WHERE albumcomment.album_id = album.id GROUP BY id ORDER BY count(*) DESC) AS pop ON album.id = pop.id) data ON data.genre_id=genre.id"
     albumPopular = list(db.session.execute(sql_query))
     albumPopular = covertEpOrAlbum(albumPopular, 2)
-    print(albumPopular)
+    # print(albumPopular)
+    sql_query = "SELECT * FROM genre AS G WHERE NOT EXISTS(SELECT M.genre_id FROM movie AS M WHERE NOT EXISTS(SELECT * FROM genre AS G1 WHERE G1.name = G.name AND G1.id = M.genre_id ))"
+    genreForAllMovies = list(db.session.execute(sql_query))
     return render_template('home.html', album_popular=albumPopular, movie_popular=moviePopular,
-                           movie_number=movieNumber, album_number=albumNumber)
+                           movie_number=movieNumber, album_number=albumNumber, genre_for_all_movies = genreForAllMovies)
 
 
 # user part end

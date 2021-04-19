@@ -39,6 +39,23 @@
             {% endfor %}
          </tbody>
       </table>
+<h2>Genre for all Movies</h2>
+      <table>
+         <thead>
+            <tr>
+               <th>id</th>
+               <th>Name</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for genre in genre_for_all_movies %}
+               <tr>
+               <td>{{ genre[0] }}</td>
+               <td>{{ genre[1] }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
 <h2>Summary</h2>
     <p>Until <label id="now" style="white-space:nowrap;"></label>, this database has {{ movie_number }} movies, and {{ album_number }} albums</p>
 {% endblock %}
